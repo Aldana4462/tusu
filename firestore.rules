@@ -1,0 +1,15 @@
+rules_version = '2';
+service cloud.firestore {
+match /databases/{database}/documents {
+// Escritura pública en preguntas_crudas, lectura denegada
+match /preguntas_crudas/{docId} {
+allow write: if true;
+allow read: if false;
+}
+// Lectura pública en preguntas_publicas, escritura denegada
+match /preguntas_publicas/{docId} {
+allow read: if true;
+allow write: if false;
+}
+}
+}
