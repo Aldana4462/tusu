@@ -1,10 +1,10 @@
 # Tusu
 
-Este repositorio contiene una página web básica de ejemplo. Los archivos principales son:
+Este repositorio contiene un ejemplo sencillo de una animación con una pelotita roja que rebota y cambia de intensidad.
 
-- `index.html`: página de inicio con un pequeño script.
-- `css/style.css`: estilos simples para la página.
-- `js/main.js`: código JavaScript que muestra un mensaje al hacer clic en el botón.
+Archivos principales:
 
-Para ver la página, abre `index.html` en tu navegador.
-- `img/cruce_con_gatitos.svg`: ilustración de un cruce con autos, motos y gatitos ocultos.
+- `index.html`: página de inicio que muestra la pelotita rebotando.
+- `css/style.css`: estilos y animación de la pelotita.
+
+Para ver la animación, abre `index.html` en tu navegador.
