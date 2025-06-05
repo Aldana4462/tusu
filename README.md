@@ -1,6 +1,6 @@
 # Tusu
 
-Este repositorio contiene un ejemplo sencillo de una pelotita roja que se mueve por toda la página rebotando en todas las direcciones. La velocidad se ajusta de forma aleatoria en cada rebote para que la animación tenga ritmos distintos.
+Este repositorio contiene un ejemplo sencillo de una pelotita roja que se mueve por toda la página rebotando en todas las direcciones. La velocidad se ajusta de forma aleatoria en cada rebote para que la animación tenga ritmos distintos. La página presenta un fondo negro y todas las letras aparecen en rojo y en mayúscula.
 
 Archivos principales:
 
