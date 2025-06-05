@@ -1,0 +1,13 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /preguntas_crudas/{docId} {
+      allow write: if true;              // Cualquiera puede enviar (anon)
+      allow read: if false;              // Nadie, excepto tu servidor, ve crudas
+    }
+    match /preguntas_publicas/{docId} {
+      allow read: if true;               // Cualquiera las puede ver
+      allow write: if false;             // Sólo tu Admin las genera
+    }
+  }
+}
