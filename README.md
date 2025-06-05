@@ -1,10 +1,11 @@
 # Tusu
 
-Este repositorio contiene un ejemplo sencillo de una animación con una pelotita roja que rebota por toda la página sin cambiar de color.
+Este repositorio contiene un ejemplo sencillo de una pelotita roja que se mueve por toda la página rebotando en todas las direcciones. La velocidad se ajusta de forma aleatoria en cada rebote para que la animación tenga ritmos distintos.
 
 Archivos principales:
 
-- `index.html`: página de inicio que muestra la pelotita moviéndose por toda la página.
-- `css/style.css`: estilos y animación de la pelotita.
+- `index.html`: página de inicio que carga la pelotita y el script de movimiento.
+- `css/style.css`: estilos básicos para la página y la pelotita.
+- `js/main.js`: controla el movimiento y la variación de velocidad.
 
 Para ver la animación, abre `index.html` en tu navegador.
