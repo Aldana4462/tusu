@@ -1,7 +1,9 @@
-echo "# tusu" >> README.md
-git init
-git add README.md
-git commit -m "Primer commit: inicializa repositorio"
-git branch -M main
-git remote add origin https://github.com/Aldana4462/tusu.git
-git push -u origin main
+# Tusu
+
+Este repositorio contiene una página web básica de ejemplo. Los archivos principales son:
+
+- `index.html`: página de inicio con un pequeño script.
+- `css/style.css`: estilos simples para la página.
+- `js/main.js`: código JavaScript que muestra un mensaje al hacer clic en el botón.
+
+Para ver la página, abre `index.html` en tu navegador.
