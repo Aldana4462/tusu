@@ -1,27 +1,40 @@
 body {
-    font-family: Arial, sans-serif;
-    background-color: #000;
-    color: red;
-    text-transform: uppercase;
     margin: 0;
-    height: 100vh;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(#8ecae6, #219ebc);
     overflow: hidden;
+    height: 100vh;
     position: relative;
 }
 
 h1 {
     text-align: center;
-    margin-top: 20px;
+    color: #fff;
+    margin: 20px 0;
 }
 
-#ball {
-    width: 30px;
-    height: 30px;
+.cloud {
+    width: 120px;
+    height: 60px;
+    background: #fff;
     border-radius: 50%;
-    background-color: red;
     position: absolute;
-    top: 0;
-    left: 0;
-    will-change: transform;
+    left: -200px;
+    box-shadow: -30px 10px 0 0 #fff, 30px 10px 0 0 #fff, 0 20px 0 0 #fff;
+    animation: moveClouds 60s linear infinite;
 }
 
+.cloud:nth-child(2) {
+    top: 40%;
+    animation-duration: 80s;
+}
+
+.cloud:nth-child(3) {
+    top: 70%;
+    animation-duration: 70s;
+}
+
+@keyframes moveClouds {
+    from { transform: translateX(-200px); }
+    to { transform: translateX(100vw); }
+}
