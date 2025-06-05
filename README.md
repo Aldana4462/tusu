@@ -1,7 +1,13 @@
-echo "# tusu" >> README.md
-git init
-git add README.md
-git commit -m "Primer commit: inicializa repositorio"
-git branch -M main
-git remote add origin https://github.com/Aldana4462/tusu.git
-git push -u origin main
+# Tusu
+
+This project uses [Next.js](https://nextjs.org/) with [Tailwind CSS](https://tailwindcss.com/) and [Firebase](https://firebase.google.com/).
+
+## Available Scripts
+
+- `npm run dev` - Starts the development server.
+- `npm run build` - Builds the application for production.
+- `npm run start` - Runs the built app in production mode.
+
+## Tailwind CSS
+
+Tailwind is configured in `tailwind.config.js`. Global styles are located in `styles/globals.css`.
