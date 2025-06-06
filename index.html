@@ -7,56 +7,63 @@
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
-    /* Base styles */
+    /* Global styles */
     body {
       margin: 0;
       font-family: 'Montserrat', sans-serif;
       overflow-x: hidden;
-      background: url('https://images.pexels.com/photos/459225/pexels-photo-459225.jpeg') center/cover no-repeat;
-      position: relative;
-      color: #FFFFFF;
+      background: #000;
+      color: #fff;
     }
-    /* Glitch overlay animation */
-    @keyframes glitchMove {
-      0% { transform: translate(0,0); }
-      50% { transform: translate(5px,-5px); }
-      100% { transform: translate(0,0); }
-    }
-    .glitch-overlay {
+
+    /* Grid background */
+    .grid {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8Xw8AAssB9N1teXcAAAAASUVORK5CYII=') repeat;
-      opacity: 0.15;
-      animation: glitchMove 8s linear infinite;
-      pointer-events: none;
+      background:
+        repeating-linear-gradient(#0ff 0 2px, transparent 2px 80px),
+        repeating-linear-gradient(90deg, #0ff 0 2px, transparent 2px 80px);
+      transform: perspective(800px) rotateX(60deg) scale(1.5);
+      transform-origin: bottom;
+      filter: blur(1px);
+      z-index: 0;
+    }
+    .grid-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.6);
       z-index: 1;
     }
+
     /* Navbar */
     nav {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
+      height: 60px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 15px 20px;
+      padding: 0 20px;
       box-sizing: border-box;
       background: transparent;
-      z-index: 1000;
+      z-index: 5;
     }
     nav .logo {
       font-weight: 700;
       font-size: 24px;
-      color: #FFFFFF;
       text-shadow: 0 0 5px rgba(255,255,255,0.3);
     }
     nav button {
       background: #1DE9B6;
-      color: #FFFFFF;
+      color: #fff;
       border: none;
       padding: 10px 20px;
       border-radius: 4px;
@@ -66,66 +73,60 @@
       cursor: pointer;
       transition: transform 0.2s;
     }
-    nav button:hover { transform: scale(1.05); }
+    nav button:hover {
+      transform: scale(1.05);
+    }
 
-    /* Faces container visible on load */
-    .faces-container {
-      position: absolute;
-      top: 60px;
-      left: 0;
+    /* 3D scene container */
+    .scene {
+      position: relative;
       width: 100%;
-      height: calc(100vh - 60px);
+      height: 100vh;
+      perspective: 800px;
+      perspective-origin: center center;
       overflow: hidden;
       z-index: 2;
     }
-    @keyframes floatUpDown {
-      0% { transform: translateY(0); }
-      50% { transform: translateY(-8px); }
-      100% { transform: translateY(0); }
-    }
-    .face-circle {
+
+    /* Capsule 3D styling */
+    .capsule {
       position: absolute;
-      width: 100px;
-      height: 100px;
-      border: 4px solid #FFFFFF;
+      left: 50%;
+      top: 50%;
+      width: 80px;
+      height: 80px;
+      border: 3px solid #FFFFFF;
       border-radius: 50%;
-      overflow: hidden;
-      box-shadow: inset 0 0 6px rgba(0,0,0,0.4), 0 2px 8px rgba(0,0,0,0.5);
-      background-size: cover;
-      background-position: center;
-      animation: floatUpDown 5s ease-in-out infinite;
-      cursor: pointer;
+      box-shadow: inset 0 0 6px rgba(0,0,0,0.4), 0 4px 12px rgba(0,0,0,0.5);
+      transform-style: preserve-3d;
       transition: transform 0.2s;
     }
-    .face-circle:hover { transform: scale(1.1); }
-    .tooltip {
-      position: absolute;
-      bottom: 110%;
-      left: 50%;
-      transform: translateX(-50%) translateY(0);
-      background: rgba(0,0,0,0.8);
-      color: #FFFFFF;
-      font-size: 14px;
-      padding: 6px 10px;
-      border-radius: 4px;
-      opacity: 0;
-      transition: opacity 0.2s, transform 0.2s;
-      white-space: nowrap;
-      pointer-events: none;
+    .capsule-overlay {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.6), rgba(255,255,255,0) 60%);
+      backdrop-filter: blur(1px);
+      transition: background 0.2s;
     }
-    .face-circle:hover .tooltip {
-      opacity: 1;
-      transform: translateX(-50%) translateY(-10px);
+    .capsule:hover {
+      transform: scale(1.1);
+    }
+    .capsule:hover .capsule-overlay {
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), rgba(255,255,255,0) 60%);
     }
 
-    /* Hero overlay */
+    /* Hero text overlay */
     .hero-overlay {
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
       text-align: center;
-      z-index: 500;
+      z-index: 4;
+      background: rgba(0,0,0,0.4);
+      padding: 10px 20px;
+      border-radius: 4px;
     }
     .hero-overlay h1 {
       font-weight: 700;
@@ -136,7 +137,7 @@
     .hero-overlay p {
       font-weight: 600;
       font-size: 18px;
-      margin-top: 10px;
+      margin: 10px 0 0;
       color: rgba(255,255,255,0.8);
     }
 
@@ -144,26 +145,22 @@
     .explanation {
       background: #0F0F0F;
       padding: 60px 20px;
-      color: #E0E0E0;
       text-align: center;
     }
     .explanation h2 {
       font-size: 32px;
-      color: #FFFFFF;
       margin-top: 0;
     }
     .explanation p {
       font-size: 18px;
-      margin: 15px 0;
+      margin: 15px auto;
+      max-width: 800px;
       color: rgba(224,224,224,0.9);
     }
-    #counter {
-      color: #1DE9B6;
-      font-weight: 600;
-    }
+    #counter { color: #1DE9B6; font-weight: 600; }
     .explanation button {
       background: #FF4081;
-      color: #FFFFFF;
+      color: #fff;
       border: none;
       padding: 10px 20px;
       border-radius: 4px;
@@ -187,7 +184,7 @@
       display: none;
       align-items: center;
       justify-content: center;
-      z-index: 1001;
+      z-index: 6;
     }
     .modal-content {
       background: #1A1A1A;
@@ -196,7 +193,6 @@
       width: 90%;
       max-width: 400px;
       position: relative;
-      color: #FFFFFF;
     }
     #closeModal {
       position: absolute;
@@ -215,65 +211,59 @@
       width: 100%;
       padding: 8px;
       border-radius: 4px;
-      border: 1px solid #444444;
-      background: #333333;
-      color: #FFFFFF;
+      border: 1px solid #444;
+      background: #333;
+      color: #fff;
       box-sizing: border-box;
       margin-top: 4px;
     }
     .modal-content textarea { height: 80px; resize: vertical; }
     .modal-content button[type="submit"] {
       background: #FF4081;
-      color: #FFFFFF;
+      color: #fff;
       border: none;
-      padding: 12px 20px;
+      padding: 12px;
       border-radius: 4px;
       text-transform: uppercase;
       letter-spacing: 1px;
       margin-top: 20px;
       width: 100%;
       cursor: pointer;
-      transition: transform 0.2s;
     }
-    .modal-content button[type="submit"]:hover { transform: scale(1.05); }
     .disclaimer {
       font-size: 12px;
-      color: rgba(224,224,224,0.7);
       margin-top: 10px;
+      color: rgba(224,224,224,0.7);
     }
 
     /* Footer */
     footer {
-      background: #0F0F0F;
-      padding: 20px;
+      background: rgba(0,0,0,0.7);
       text-align: center;
-      color: #757575;
+      padding: 20px;
+      color: rgba(255,255,255,0.6);
       font-size: 14px;
     }
-    footer a {
-      color: #1DE9B6;
-      text-decoration: none;
-      margin: 0 10px;
-    }
+    footer a { color: #1DE9B6; margin: 0 10px; text-decoration: none; }
 
-    /* Responsive adjustments */
+    /* Responsive */
     @media (max-width: 768px) {
-      .face-circle {
+      .capsule {
         width: 60px;
         height: 60px;
         border-width: 3px;
       }
-      .tooltip { font-size: 12px; padding: 4px 8px; }
       .hero-overlay h1 { font-size: 28px; }
       .hero-overlay p { font-size: 14px; }
-      nav { flex-direction: column; }
+      nav { flex-direction: column; height: auto; padding: 10px; }
       nav button { margin-top: 10px; width: 100%; }
     }
   </style>
 </head>
 <body>
-  <!-- Glitch overlay -->
-  <div class="glitch-overlay"></div>
+  <!-- Grid background -->
+  <div class="grid"></div>
+  <div class="grid-overlay"></div>
 
   <!-- Navbar -->
   <nav>
@@ -281,8 +271,8 @@
     <button id="joinBtn">JOIN THE CAPSULE</button>
   </nav>
 
-  <!-- Faces Container -->
-  <div class="faces-container"></div>
+  <!-- 3D Scene Container -->
+  <div class="scene"></div>
 
   <!-- Hero Text Overlay -->
   <div class="hero-overlay">
@@ -307,7 +297,7 @@
         <label for="faceImage">Upload Image</label>
         <input type="file" id="faceImage" accept="image/*" required>
         <label for="faceMessage">Your Message (max 100 chars)</label>
-        <textarea id="faceMessage" maxlength="100" placeholder="Your message" required></textarea>
+        <textarea id="faceMessage" maxlength="100" required></textarea>
         <label for="faceLink">Optional Link</label>
         <input type="url" id="faceLink" placeholder="https://example.com">
         <label for="faceEmail">Your Email</label>
@@ -326,91 +316,102 @@
   </footer>
 
   <script>
-    // Sample faces array with placeholder colors
-    const faces = [
-      { id: 1, img: 'https://via.placeholder.com/100/FF0000', message: 'Example message 1', link: 'https://example.com' },
-      { id: 2, img: 'https://via.placeholder.com/100/00FF00', message: 'Example message 2', link: '' },
-      { id: 3, img: 'https://via.placeholder.com/100/0000FF', message: 'Example message 3', link: '' },
-      { id: 4, img: 'https://via.placeholder.com/100/FFFF00', message: 'Example message 4', link: 'https://example.com' },
-      { id: 5, img: 'https://via.placeholder.com/100/FF00FF', message: 'Example message 5', link: '' },
-      { id: 6, img: 'https://via.placeholder.com/100/00FFFF', message: 'Example message 6', link: '' },
-      { id: 7, img: 'https://via.placeholder.com/100/555555', message: 'Example message 7', link: '' },
-      { id: 8, img: 'https://via.placeholder.com/100/222222', message: 'Example message 8', link: 'https://example.com' },
-      { id: 9, img: 'https://via.placeholder.com/100/AAAAAA', message: 'Example message 9', link: '' },
-      { id: 10, img: 'https://via.placeholder.com/100/FFAA00', message: 'Example message 10', link: '' },
-      { id: 11, img: 'https://via.placeholder.com/100/00AAFF', message: 'Example message 11', link: '' },
-      { id: 12, img: 'https://via.placeholder.com/100/AA00FF', message: 'Example message 12', link: 'https://example.com' }
-    ];
+    // Initialize capsule data
+    const capsules = [];
+    const scene = document.querySelector('.scene');
+    const joinedCounter = document.getElementById('counter');
+    let joinedCount = 12;
 
-    const container = document.querySelector('.faces-container');
-    const counterElement = document.getElementById('counter');
-    let counter = faces.length;
-
-    // Render initial faces
-    function renderFaces() {
-      faces.forEach(face => addFaceToDOM(face));
-      counterElement.textContent = counter + ' / 1000000 joined';
+    // Create capsule elements in DOM
+    function createCapsule(c) {
+      const div = document.createElement('div');
+      div.className = 'capsule';
+      const overlay = document.createElement('div');
+      overlay.className = 'capsule-overlay';
+      div.appendChild(overlay);
+      scene.appendChild(div);
+      c.el = div;
     }
 
-    // Add a face element to the DOM
-    function addFaceToDOM(face) {
-      const circle = document.createElement('div');
-      circle.className = 'face-circle';
-      circle.style.top = (Math.random() * 85 + 5) + '%';
-      circle.style.left = (Math.random() * 85 + 5) + '%';
-      circle.style.backgroundImage = 'url(' + face.img + ')';
-
-      const tooltip = document.createElement('div');
-      tooltip.className = 'tooltip';
-      if (face.link) {
-        const a = document.createElement('a');
-        a.href = face.link;
-        a.target = '_blank';
-        a.style.color = '#1DE9B6';
-        a.style.textDecoration = 'underline';
-        a.textContent = face.message;
-        tooltip.appendChild(a);
-      } else {
-        tooltip.textContent = face.message;
+    // Render initial capsules
+    function initCapsules() {
+      for (let i = 0; i < 12; i++) {
+        const cap = {
+          id: i,
+          x: Math.random()*100 - 50,
+          y: Math.random()*100 - 50,
+          z: Math.random()*1000 - 500,
+          dx: (Math.random()*0.5 + 0.1) * (Math.random() < 0.5 ? 1 : -1),
+          dy: (Math.random()*0.5 + 0.1) * (Math.random() < 0.5 ? 1 : -1),
+          dz: (Math.random()*1 + 0.2) * (Math.random() < 0.5 ? 1 : -1)
+        };
+        capsules.push(cap);
+        createCapsule(cap);
       }
-      circle.appendChild(tooltip);
-      container.appendChild(circle);
+      updateCounter();
     }
 
-    // Show modal
-    function showModal() {
-      document.getElementById('formModal').style.display = 'flex';
+    // Update counter text
+    function updateCounter() {
+      joinedCounter.textContent = joinedCount + ' / 1000000 joined';
     }
 
-    // Hide modal
-    function hideModal() {
-      document.getElementById('formModal').style.display = 'none';
+    // Animation loop
+    function updateCapsules() {
+      capsules.forEach(c => {
+        c.x += c.dx;
+        c.y += c.dy;
+        c.z += c.dz;
+        if (c.x > 50 || c.x < -50) c.dx *= -1;
+        if (c.y > 50 || c.y < -50) c.dy *= -1;
+        if (c.z > 600 || c.z < -600) {
+          c.z = -600;
+          c.x = Math.random()*100 - 50;
+          c.y = Math.random()*100 - 50;
+          c.dx = (Math.random()*0.5 + 0.1) * (Math.random() < 0.5 ? 1 : -1);
+          c.dy = (Math.random()*0.5 + 0.1) * (Math.random() < 0.5 ? 1 : -1);
+          c.dz = (Math.random()*1 + 0.2) * (Math.random() < 0.5 ? 1 : -1);
+        }
+        const scale = (c.z + 600) / 1200 + 0.1;
+        c.el.style.transform = `translate3d(${c.x}vw, ${c.y}vh, ${c.z}px) scale(${scale})`;
+      });
+      requestAnimationFrame(updateCapsules);
     }
+
+    // Show/hide modal
+    function showModal() { document.getElementById('formModal').style.display = 'flex'; }
+    function hideModal() { document.getElementById('formModal').style.display = 'none'; }
 
     // Handle form submission
     document.getElementById('entryForm').addEventListener('submit', e => {
       e.preventDefault();
       alert('Thank you! Your submission is received.');
       hideModal();
-      counter++;
-      counterElement.textContent = counter + ' / 1000000 joined';
-      const newFace = {
+      joinedCount++;
+      updateCounter();
+      const newCap = {
         id: Date.now(),
-        img: URL.createObjectURL(document.getElementById('faceImage').files[0]),
-        message: document.getElementById('faceMessage').value,
-        link: document.getElementById('faceLink').value
+        x: Math.random()*100 - 50,
+        y: Math.random()*100 - 50,
+        z: -600,
+        dx: (Math.random()*0.5 + 0.1) * (Math.random() < 0.5 ? 1 : -1),
+        dy: (Math.random()*0.5 + 0.1) * (Math.random() < 0.5 ? 1 : -1),
+        dz: (Math.random()*1 + 0.2) * (Math.random() < 0.5 ? 1 : -1)
       };
-      addFaceToDOM(newFace);
+      capsules.push(newCap);
+      createCapsule(newCap);
       e.target.reset();
     });
 
-    // Event listeners for buttons
     document.getElementById('joinBtn').addEventListener('click', showModal);
     document.getElementById('joinBtn2').addEventListener('click', showModal);
     document.getElementById('closeModal').addEventListener('click', hideModal);
 
-    // Render faces on DOM ready
-    window.addEventListener('DOMContentLoaded', renderFaces);
+    // Initialize scene
+    window.addEventListener('DOMContentLoaded', () => {
+      initCapsules();
+      updateCapsules();
+    });
   </script>
 </body>
 </html>
