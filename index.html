@@ -7,7 +7,7 @@
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
-    /* 3D Grid Floor Styling */
+    /* Estilos Grid 3D y Movimiento */
     body {
       margin: 0;
       font-family: 'Montserrat', sans-serif;
@@ -21,7 +21,7 @@
       bottom: -50vh;
       width: 200vw;
       height: 200vh;
-      transform: rotateX(60deg) translateZ(-200px) translateX(-50%);
+      transform: rotateX(60deg) translateZ(-200px);
       transform-origin: top center;
       background:
         repeating-linear-gradient(#00e5ff 0 2px, transparent 2px 40px),
@@ -88,7 +88,7 @@
       z-index: 2;
     }
 
-    /* Capsule 3D & crystal effect */
+    /* Estilos Cápsula Cristal */
     .capsule {
       position: absolute;
       left: 50%;
@@ -107,14 +107,18 @@
       top: 0; left: 0;
       width: 100%; height: 100%;
       border-radius: 50%;
-      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0) 60%);
-      backdrop-filter: blur(2px);
-      pointer-events: none;
-      transition: background 0.3s ease-out;
+        background:
+          radial-gradient(circle at 30% 30%, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0) 60%),
+          rgba(200,230,255,0.08);
+        backdrop-filter: blur(2px);
+        pointer-events: none;
+        transition: background 0.3s ease-out;
     }
-    .capsule:hover { transform: scale(1.1); }
+    .capsule:hover { transform: scale(1.1) !important; }
     .capsule:hover .capsule-overlay {
-      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0) 60%);
+        background:
+          radial-gradient(circle at 30% 30%, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0) 50%),
+          rgba(200,230,255,0.12);
     }
 
     /* Hero overlay */
@@ -146,7 +150,7 @@
       color: rgba(255,255,255,0.8);
     }
 
-    /* Explanation Section */
+    /* Explicación */
     .explanation {
       background: #0F0F0F;
       padding: 60px 20px;
@@ -253,6 +257,7 @@
       margin-top: 10px;
     }
 
+    /* Animaciones Sinusoidales */
     /* Footer */
     footer {
       background: rgba(0,0,0,0.7);
@@ -265,7 +270,7 @@
     }
     footer a { color: #1DE9B6; margin: 0 10px; text-decoration: none; }
 
-    /* Responsive adjustments */
+    /* Ajustes Responsivos */
     @media (max-width: 768px) {
       .capsule {
         width: 60px;
@@ -287,8 +292,9 @@
     <button id="joinBtn">JOIN THE CAPSULE</button>
   </nav>
 
-  <!-- 3D Grid Floor and Capsules -->
+  <!-- Contenedor 3D (scene) -->
   <div class="scene">
+    <!-- Campo Vivo (grid-plane) -->
     <div class="grid-plane"></div>
     <div class="grid-overlay"></div>
   </div>
@@ -301,7 +307,7 @@
     </div>
   </div>
 
-  <!-- Explanation Section -->
+  <!-- Explicación -->
   <div class="explanation">
     <h2>WHAT IS LA CÁPSULA?</h2>
     <p>A digital time capsule open for 30 days. 1,000,000 potential spots. One chance to leave your mark. Upload your face. Write your message. Your presence will float forever.</p>
@@ -309,7 +315,7 @@
     <button id="joinBtn2">JOIN THE CAPSULE – USD 3</button>
   </div>
 
-  <!-- Form Modal -->
+  <!-- Modal Form -->
   <div id="formModal" class="modal">
     <div class="modal-content">
       <span id="closeModal">&times;</span>
@@ -337,7 +343,7 @@
   </footer>
 
   <script>
-    // Initialize capsule data
+    // Inicializar cápsulas
     const capsules = [];
     let joinedCount = 12;
     const scene = document.querySelector('.scene');
@@ -364,7 +370,7 @@
       });
     }
 
-    // Render all capsules into DOM
+    // Renderizar cápsulas
     function renderCapsules() {
       capsules.forEach(capsule => {
         const el = document.createElement('div');
@@ -377,8 +383,8 @@
       });
     }
 
-    // Main animation loop (requestAnimationFrame)
-    function update() {
+    // Animación principal de cápsulas
+    function updateCapsules() {
       const t = performance.now() / 1000;
       capsules.forEach(capsule => {
         let x = capsule.baseX + Math.sin(t * capsule.speedX + capsule.phaseX) * capsule.amplitudeX;
@@ -405,14 +411,25 @@
         const el = document.getElementById(`capsule-${capsule.id}`);
         el.style.transform = `translate3d(${x}vw, ${y}vh, ${z}px) scale(${scale})`;
       });
-      requestAnimationFrame(update);
+      requestAnimationFrame(updateCapsules);
+    }
+    // Animación del Campo Vivo
+    function updateGrid() {
+      const t = performance.now() / 1000;
+      const angleBase = 60;
+      const newAngle = angleBase + Math.sin(t * 0.5) * 2;
+      const newZ = -200 + Math.sin(t * 0.3) * 20;
+      const grid = document.querySelector(".grid-plane");
+      grid.style.transform = `rotateX(${newAngle}deg) translateZ(${newZ}px)`;
+      requestAnimationFrame(updateGrid);
     }
 
-    // Show/hide modal
+
+    // Manejo de Modal
     function showModal() { document.getElementById('formModal').style.display = 'flex'; }
     function hideModal() { document.getElementById('formModal').style.display = 'none'; }
 
-    // Handle form submission
+    // Manejo de Envío de Formulario
     document.getElementById('entryForm').addEventListener('submit', e => {
       e.preventDefault();
       alert('Thank you! Your submission is received.');
@@ -456,7 +473,8 @@
     window.addEventListener('DOMContentLoaded', () => {
       renderCapsules();
       counter.textContent = joinedCount + ' / 1000000 joined';
-      update();
+      updateGrid();
+      updateCapsules();
     });
   </script>
 </body>
