@@ -23,8 +23,8 @@ button.buy:hover{background:#19c9a4;}
 .capsule{overflow:hidden;}
 .capsule img{position:absolute;width:100%;height:100%;top:0;left:0;border-radius:50%;object-fit:cover;}
 .capsule span{position:relative;font-size:1.2rem;font-weight:bold;text-shadow:0 1px 3px rgba(0,0,0,0.7);pointer-events:none;z-index:1;}
-.highlight{animation:warmGlow 2s ease-in-out infinite;}
-@keyframes warmGlow{0%{box-shadow:0 0 5px 3px rgba(255,165,0,0.4);}50%{box-shadow:0 0 20px 10px rgba(255,165,0,0.8);}100%{box-shadow:0 0 5px 3px rgba(255,165,0,0.4);}}
+.highlight{animation:warmGlow 1.5s ease-in-out infinite;}
+@keyframes warmGlow{0%{box-shadow:0 0 15px 8px rgba(255,200,0,0.8);}50%{box-shadow:0 0 40px 20px rgba(255,200,0,1);}100%{box-shadow:0 0 15px 8px rgba(255,200,0,0.8);}
 .tooltip{position:absolute;padding:8px 12px;background:rgba(0,0,0,0.8);border:1px solid #1DE9B6;border-radius:4px;font-size:0.9rem;pointer-events:none;white-space:pre-line;z-index:1001;}
 #popup{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);display:none;align-items:center;justify-content:center;z-index:1500;}
 #popup .popup-content{background:#111;padding:20px;border-radius:6px;color:#fff;text-align:center;max-width:400px;width:90%;box-shadow:0 0 10px rgba(0,0,0,0.5);}
@@ -97,7 +97,7 @@ for(let i=1;i<=100;i++){
   speedX:Math.random()*0.3+0.1,
   speedY:Math.random()*0.3+0.1,
   speedZ:Math.random()*0.2+0.05,
-  msg:'',url:'',claimed:false,
+  msg:i===1?'Capsula de ejemplo':'',url:'',claimed:i===1,
   img:i===1?'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMBAKb0SXYAAAAASUVORK5CYII=':'',
   el:null
  });
