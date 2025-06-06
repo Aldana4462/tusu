@@ -62,34 +62,25 @@ nav h1{font-size:1.5rem;}
 <script>
 /* ----- Data for capsules and particles ----- */
 const capsules=[];
-// distribute 30 capsules across the viewport using a 6x5 grid
-const cols=5,rows=6;
-const w=innerWidth,h=innerHeight;
-const segX=w/cols,segY=h/rows;
-let id=1;
-for(let r=0;r<rows;r++){
- for(let c=0;c<cols;c++){
+for(let i=1;i<=30;i++){
   capsules.push({
-   id:id++,
-   // base positions spread across the screen with slight randomness
-   x:segX*(c+0.5)-w/2+rand(-segX/3,segX/3),
-   y:segY*(r+0.5)-h/2+rand(-segY/3,segY/3),
-   z:rand(-300,300),
-   phiX:rand(0,Math.PI*2),
-   phiY:rand(0,Math.PI*2),
-   phiZ:rand(0,Math.PI*2),
-   ax:rand(0.3,0.8),
-   ay:rand(0.3,0.8),
-   az:rand(0.3,0.8),
-   fx:rand(0.15,0.35),
-   fy:rand(0.15,0.35),
-   fz:rand(0.15,0.35),
-   msg:'',
-   url:'',
-   claimed:false,
-   el:null
+    id:i,
+    baseX:Math.random()*90+5,
+    baseY:Math.random()*80+10,
+    amplitudeX:Math.random()*20+10,
+    amplitudeY:Math.random()*15+10,
+    phaseX:Math.random()*Math.PI*2,
+    phaseY:Math.random()*Math.PI*2,
+    speed:Math.random()*0.5+0.2,
+    baseZ:rand(-150,150),
+    amplitudeZ:rand(50,150),
+    phaseZ:Math.random()*Math.PI*2,
+    speedZ:Math.random()*0.5+0.2,
+    msg:"",
+    url:"",
+    claimed:false,
+    el:null
   });
- }
 }
 const particles=[];
 for(let i=0;i<20;i++){
@@ -146,23 +137,17 @@ function loop(t){
   p.el.style.transform=`translate(${x}px,${y}px)`;
   p.el.style.opacity=0.2+0.3*Math.sin(time+p.phase);
  });
- capsules.forEach(c=>{
-  // allow capsules to roam using the full viewport dimensions
-  const rangeX=innerWidth/2;
-  const rangeY=innerHeight/2;
-  const rangeZ=300;
-  c.x+=Math.sin(time*c.fx+c.phiX)*c.ax;
-  c.y+=Math.cos(time*c.fy+c.phiY)*c.ay;
-  c.z+=Math.sin(time*c.fz+c.phiZ)*c.az;
-  if(c.x>rangeX) c.x=-rangeX;if(c.x<-rangeX) c.x=rangeX;
-  if(c.y>rangeY) c.y=-rangeY;if(c.y<-rangeY) c.y=rangeY;
-  if(c.z>rangeZ) c.z=-rangeZ;if(c.z<-rangeZ) c.z=rangeZ;
-  const scale=1+(c.z/300);
-  const blur=Math.max(0,2-c.z/150);
-  c.el.style.transform=`translate(calc(-50% + ${c.x}px),calc(-50% + ${c.y}px)) scale(${scale})`;
-  c.el.style.filter=`blur(${blur}px)`;
-  c.el.style.zIndex=Math.floor(1000+(c.z*10));
- });
+  capsules.forEach(c=>{
+    const tx=time*c.speed;
+    const x=c.baseX+Math.sin(tx+c.phaseX)*c.amplitudeX;
+    const y=c.baseY+Math.cos(tx+c.phaseY)*c.amplitudeY;
+    const z=c.baseZ+Math.sin(time*c.speedZ+c.phaseZ)*c.amplitudeZ;
+    const scale=1+(z/300);
+    const blur=Math.max(0,2-z/150);
+    c.el.style.transform=`translate(-50%, -50%) translate(${x}vw, ${y}vh) scale(${scale})`;
+    c.el.style.filter=`blur(${blur}px)`;
+    c.el.style.zIndex=Math.floor(1000+(z*10));
+  });
  const glow=0.5+0.5*Math.sin(time*0.5);
  bg.style.background=`radial-gradient(circle at 50% 60%,rgba(255,255,255,${0.05+glow*0.05}),transparent 70%)`;
  requestAnimationFrame(loop);
