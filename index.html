@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>La Cápsula</title>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* General styles */
+    body {
+      margin: 0;
+      font-family: 'Montserrat', sans-serif;
+      overflow-x: hidden;
+      background: url('https://images.pexels.com/photos/459225/pexels-photo-459225.jpeg') center/cover no-repeat;
+      position: relative;
+      color: white;
+    }
+    /* Glitch overlay covering entire viewport */
+    .glitch-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8Xw8AAssB9N1teXcAAAAASUVORK5CYII=') repeat;
+      opacity: 0.15;
+      animation: glitchMove 8s linear infinite;
+      pointer-events: none;
+    }
+    @keyframes glitchMove {
+      0% { transform: translate(0,0); }
+      50% { transform: translate(5px,-5px); }
+      100% { transform: translate(0,0); }
+    }
+    /* Navbar */
+    nav {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      box-sizing: border-box;
+      z-index: 10;
+    }
+    nav .logo {
+      font-weight: 700;
+      font-size: 24px;
+    }
+    nav button {
+      background: #1DE9B6;
+      border: none;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 4px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    nav button:hover {
+      transform: scale(1.05);
+    }
+    /* Hero section */
+    .hero {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 0 20px;
+    }
+    .hero h1 {
+      font-size: 64px;
+      font-weight: 700;
+      margin: 0 0 20px;
+      text-shadow: 0 0 10px rgba(255,255,255,0.3);
+    }
+    .hero p {
+      font-size: 24px;
+      margin: 0 0 30px;
+      color: rgba(255,255,255,0.8);
+    }
+    .hero button {
+      background: #1DE9B6;
+      border: none;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 4px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .hero button:hover { transform: scale(1.05); }
+
+    /* Explanation section */
+    .explanation {
+      width: 100%;
+      background: rgba(0,0,0,0.5);
+      padding: 40px 20px;
+      text-align: center;
+    }
+    .explanation h2 {
+      font-size: 32px;
+      margin: 0 0 20px;
+    }
+    .explanation p {
+      font-size: 18px;
+      margin: 10px 0;
+    }
+    #counter {
+      color: #1DE9B6;
+      font-weight: 600;
+    }
+
+    /* Faces container */
+    .faces-container {
+      position: relative;
+      width: 100%;
+      height: calc(100vh * 2);
+    }
+    .face-circle {
+      position: absolute;
+      width: 100px;
+      height: 100px;
+      border: 4px solid #FFFFFF;
+      border-radius: 50%;
+      overflow: hidden;
+      box-shadow: inset 0 0 4px rgba(0,0,0,0.2);
+      background-size: cover;
+      background-position: center;
+      animation: floatUpDown 5s ease-in-out infinite;
+      transition: transform 0.2s;
+    }
+    .face-circle:hover {
+      transform: scale(1.1);
+    }
+    @keyframes floatUpDown {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+      100% { transform: translateY(0); }
+    }
+    .tooltip {
+      position: absolute;
+      bottom: 110%;
+      left: 50%;
+      transform: translateX(-50%) translateY(0);
+      background: rgba(0,0,0,0.7);
+      color: white;
+      padding: 6px 10px;
+      border-radius: 4px;
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 0.2s, transform 0.2s;
+      font-size: 14px;
+      pointer-events: none;
+    }
+    .face-circle:hover .tooltip {
+      opacity: 1;
+      transform: translateX(-50%) translateY(-10px);
+    }
+
+    /* Modal styles */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+    }
+    .modal-content {
+      background: #1A1A1A;
+      padding: 20px;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 400px;
+      position: relative;
+      color: white;
+    }
+    #closeModal {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 30px;
+      cursor: pointer;
+    }
+    .modal-content h2 {
+      margin-top: 0;
+      font-size: 28px;
+    }
+    .modal-content form {
+      display: flex;
+      flex-direction: column;
+    }
+    .modal-content label {
+      margin-top: 10px;
+      margin-bottom: 4px;
+      font-size: 14px;
+    }
+    .modal-content input,
+    .modal-content textarea {
+      padding: 8px;
+      border-radius: 4px;
+      border: 1px solid #555;
+      background: #333;
+      color: white;
+      resize: vertical;
+    }
+    .modal-content button[type="submit"] {
+      margin-top: 15px;
+      background: #FF4081;
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+    .disclaimer {
+      font-size: 12px;
+      margin-top: 10px;
+      color: rgba(255,255,255,0.7);
+    }
+
+    /* Footer */
+    footer {
+      background: rgba(0,0,0,0.7);
+      text-align: center;
+      padding: 20px;
+      color: rgba(255,255,255,0.6);
+      font-size: 14px;
+    }
+    footer a { color: rgba(255,255,255,0.6); margin: 0 5px; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 32px; }
+      .hero p { font-size: 16px; }
+      .face-circle { width: 60px; height: 60px; }
+      .tooltip { font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Glitch overlay -->
+  <div class="glitch-overlay"></div>
+
+  <!-- Navigation bar -->
+  <nav>
+    <div class="logo">La Cápsula</div>
+    <button id="joinBtn">JOIN THE CAPSULE</button>
+  </nav>
+
+  <!-- Hero section -->
+  <section class="hero">
+    <h1>YOUR FACE. YOUR MESSAGE. FOREVER IN A TIME CAPSULE.</h1>
+    <p>30 DAYS. 5,000 SPOTS. NO EDITS. NO DELETES.</p>
+    <button id="ctaBtn">JOIN NOW – USD 3</button>
+  </section>
+
+  <!-- Explanation section -->
+  <div class="explanation">
+    <h2>WHAT IS THE CAPSULE?</h2>
+    <p>A digital time capsule open for 30 days. 5,000 souls. One chance. Upload your face. Write your message. Your presence will float forever.</p>
+    <p id="counter">0 / 5000 joined</p>
+  </div>
+
+  <!-- Faces container -->
+  <div class="faces-container"></div>
+
+  <!-- Modal for form -->
+  <div id="formModal" class="modal">
+    <div class="modal-content">
+      <span id="closeModal">&times;</span>
+      <h2>ENTER THE CAPSULE</h2>
+      <form id="entryForm">
+        <label for="faceImage">Your face image</label>
+        <input type="file" id="faceImage" accept="image/*" required>
+        <label for="faceMessage">Message</label>
+        <textarea id="faceMessage" maxlength="100" placeholder="Your message" required></textarea>
+        <label for="faceLink">Link</label>
+        <input type="url" id="faceLink" placeholder="Optional link">
+        <label for="faceEmail">Email</label>
+        <input type="email" id="faceEmail" placeholder="Your email" required>
+        <button type="submit">PAY & SUBMIT</button>
+      </form>
+      <p class="disclaimer">USD 3 / ARS 2000. Once you submit, you cannot edit or delete.</p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <a href="#">Privacy Policy</a> |
+    <a href="#">Terms</a> |
+    © 2025 La Cápsula. All rights reserved.
+  </footer>
+
+  <script>
+    // Sample faces array with placeholder images and messages
+    const faces = [
+      { id: 1, img: 'https://via.placeholder.com/100', message: 'Example message 1', link: 'https://example.com' },
+      { id: 2, img: 'https://via.placeholder.com/100', message: 'Example message 2', link: '' },
+      { id: 3, img: 'https://via.placeholder.com/100', message: 'Example message 3', link: '' },
+      { id: 4, img: 'https://via.placeholder.com/100', message: 'Example message 4', link: 'https://example.com' },
+      { id: 5, img: 'https://via.placeholder.com/100', message: 'Example message 5', link: '' },
+      { id: 6, img: 'https://via.placeholder.com/100', message: 'Example message 6', link: '' },
+      { id: 7, img: 'https://via.placeholder.com/100', message: 'Example message 7', link: '' },
+      { id: 8, img: 'https://via.placeholder.com/100', message: 'Example message 8', link: 'https://example.com' },
+      { id: 9, img: 'https://via.placeholder.com/100', message: 'Example message 9', link: '' },
+      { id: 10, img: 'https://via.placeholder.com/100', message: 'Example message 10', link: '' }
+    ];
+
+    const container = document.querySelector('.faces-container');
+    const counter = document.getElementById('counter');
+
+    // Render faces on page load
+    function renderFaces(newFace) {
+      const faceData = newFace ? [newFace] : faces;
+      faceData.forEach(face => {
+        const circle = document.createElement('div');
+        circle.className = 'face-circle';
+        const top = Math.random()*80 + 10; // between 10 and 90
+        const left = Math.random()*80 + 10;
+        circle.style.top = top + '%';
+        circle.style.left = left + '%';
+        circle.style.backgroundImage = 'url(' + face.img + ')';
+
+        const tooltip = document.createElement('div');
+        tooltip.className = 'tooltip';
+        if (face.link) {
+          const link = document.createElement('a');
+          link.href = face.link;
+          link.target = '_blank';
+          link.style.color = 'white';
+          link.textContent = face.message;
+          tooltip.appendChild(link);
+        } else {
+          tooltip.textContent = face.message;
+        }
+
+        circle.appendChild(tooltip);
+        container.appendChild(circle);
+      });
+
+      // Update counter
+      counter.textContent = container.children.length + ' / 5000 joined';
+    }
+
+    // Initial render
+    document.addEventListener('DOMContentLoaded', () => {
+      renderFaces();
+    });
+
+    // Modal handling
+    const joinButtons = [document.getElementById('joinBtn'), document.getElementById('ctaBtn')];
+    const modal = document.getElementById('formModal');
+    const closeModal = document.getElementById('closeModal');
+
+    joinButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        modal.style.display = 'flex';
+      });
+    });
+    closeModal.addEventListener('click', () => {
+      modal.style.display = 'none';
+    });
+
+    // Form submission handling
+    document.getElementById('entryForm').addEventListener('submit', function(e){
+      e.preventDefault();
+      alert('Thank you! Your submission is received.');
+      modal.style.display = 'none';
+
+      // Add new face to container with random position
+      const newFace = {
+        id: Date.now(),
+        img: 'https://via.placeholder.com/100', // placeholder instead of uploaded image
+        message: document.getElementById('faceMessage').value,
+        link: document.getElementById('faceLink').value
+      };
+      renderFaces(newFace);
+
+      // Reset form
+      this.reset();
+    });
+  </script>
+</body>
+</html>
