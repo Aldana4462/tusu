@@ -62,25 +62,34 @@ nav h1{font-size:1.5rem;}
 <script>
 /* ----- Data for capsules and particles ----- */
 const capsules=[];
-for(let i=1;i<=30;i++){
-  capsules.push({
-    id:i,
-    baseX:Math.random()*90+5,
-    baseY:Math.random()*80+10,
-    amplitudeX:Math.random()*20+10,
-    amplitudeY:Math.random()*15+10,
-    phaseX:Math.random()*Math.PI*2,
-    phaseY:Math.random()*Math.PI*2,
-    speed:Math.random()*0.5+0.2,
-    baseZ:rand(-150,150),
-    amplitudeZ:rand(50,150),
-    phaseZ:Math.random()*Math.PI*2,
-    speedZ:Math.random()*0.5+0.2,
-    msg:"",
-    url:"",
-    claimed:false,
-    el:null
-  });
+const rows=5,cols=6;
+const cellW=90/cols,cellH=80/rows;
+let id=1;
+for(let r=0;r<rows;r++){
+  for(let c=0;c<cols;c++){
+    capsules.push({
+      id:id++,
+      baseX:5+c*cellW+cellW/2+rand(-cellW/4,cellW/4),
+      baseY:10+r*cellH+cellH/2+rand(-cellH/4,cellH/4),
+      amplitudeX:rand(3,7),
+      amplitudeY:rand(2,5),
+      phaseX:Math.random()*Math.PI*2,
+      phaseY:Math.random()*Math.PI*2,
+      speed:rand(0.1,0.3),
+      baseZ:rand(-120,120),
+      amplitudeZ:rand(40,100),
+      phaseZ:Math.random()*Math.PI*2,
+      speedZ:rand(0.1,0.3),
+      msg:"",
+      url:"",
+      claimed:false,
+      el:null,
+      x:0,
+      y:0,
+      offsetX:0,
+      offsetY:0
+    });
+  }
 }
 const particles=[];
 for(let i=0;i<20;i++){
@@ -137,17 +146,47 @@ function loop(t){
   p.el.style.transform=`translate(${x}px,${y}px)`;
   p.el.style.opacity=0.2+0.3*Math.sin(time+p.phase);
  });
-  capsules.forEach(c=>{
-    const tx=time*c.speed;
-    const x=c.baseX+Math.sin(tx+c.phaseX)*c.amplitudeX;
-    const y=c.baseY+Math.cos(tx+c.phaseY)*c.amplitudeY;
-    const z=c.baseZ+Math.sin(time*c.speedZ+c.phaseZ)*c.amplitudeZ;
-    const scale=1+(z/300);
-    const blur=Math.max(0,2-z/150);
-    c.el.style.transform=`translate(-50%, -50%) translate(${x}vw, ${y}vh) scale(${scale})`;
-    c.el.style.filter=`blur(${blur}px)`;
-    c.el.style.zIndex=Math.floor(1000+(z*10));
-  });
+
+ // calculate capsule positions
+ capsules.forEach(c=>{
+   const tx=time*c.speed;
+   c.x=c.baseX+Math.sin(tx+c.phaseX)*c.amplitudeX;
+   c.y=c.baseY+Math.cos(tx+c.phaseY)*c.amplitudeY;
+   c.z=c.baseZ+Math.sin(time*c.speedZ+c.phaseZ)*c.amplitudeZ;
+   c.offsetX=0;
+   c.offsetY=0;
+ });
+
+ // simple repulsion to avoid overlap
+ for(let i=0;i<capsules.length;i++){
+   for(let j=i+1;j<capsules.length;j++){
+     const dx=capsules[j].x-capsules[i].x;
+     const dy=capsules[j].y-capsules[i].y;
+     const dist=Math.hypot(dx,dy);
+     const minDist=6;
+     if(dist<minDist){
+       const force=(minDist-dist)/minDist*0.5;
+       const nx=dx/dist||Math.random()-0.5;
+       const ny=dy/dist||Math.random()-0.5;
+       capsules[i].offsetX-=nx*force;
+       capsules[i].offsetY-=ny*force;
+       capsules[j].offsetX+=nx*force;
+       capsules[j].offsetY+=ny*force;
+     }
+   }
+ }
+
+ capsules.forEach(c=>{
+   const x=c.x+c.offsetX;
+   const y=c.y+c.offsetY;
+   const z=c.z;
+   const scale=1+(z/300);
+   const blur=Math.max(0,2-z/150);
+   c.el.style.transform=`translate(-50%, -50%) translate(${x}vw, ${y}vh) scale(${scale})`;
+   c.el.style.filter=`blur(${blur}px)`;
+   c.el.style.zIndex=Math.floor(1000+(z*10));
+ });
+
  const glow=0.5+0.5*Math.sin(time*0.5);
  bg.style.background=`radial-gradient(circle at 50% 60%,rgba(255,255,255,${0.05+glow*0.05}),transparent 70%)`;
  requestAnimationFrame(loop);
