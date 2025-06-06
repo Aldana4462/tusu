@@ -7,7 +7,7 @@
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
-    /* Grid background styling */
+    /* 3D Grid Floor Styling */
     body {
       margin: 0;
       font-family: 'Montserrat', sans-serif;
@@ -15,28 +15,29 @@
       background: #000;
       color: #fff;
     }
-    .grid {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+    .grid-plane {
+      position: absolute;
+      left: 50%;
+      bottom: -50vh;
+      width: 200vw;
+      height: 200vh;
+      transform: rotateX(60deg) translateZ(-200px) translateX(-50%);
+      transform-origin: top center;
       background:
-        repeating-linear-gradient(#0ff 0 2px, transparent 2px 80px),
-        repeating-linear-gradient(90deg, #0ff 0 2px, transparent 2px 80px);
-      transform: perspective(800px) rotateX(60deg) scale(1.5);
-      transform-origin: bottom;
+        repeating-linear-gradient(#00e5ff 0 2px, transparent 2px 40px),
+        repeating-linear-gradient(90deg, #00e5ff 0 2px, transparent 2px 40px);
       filter: blur(1px);
-      z-index: 0;
+      z-index: -1;
     }
     .grid-overlay {
-      position: fixed;
+      position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
       background: rgba(0,0,0,0.6);
-      z-index: 1;
+      pointer-events: none;
+      z-index: 0;
     }
 
     /* Navbar */
@@ -81,7 +82,7 @@
       width: 100%;
       height: 100vh;
       perspective: 800px;
-      perspective-origin: center center;
+      perspective-origin: 50% 20%;
       overflow: hidden;
       transform-style: preserve-3d;
       z-index: 2;
@@ -94,9 +95,10 @@
       top: 50%;
       width: 80px;
       height: 80px;
-      border: 3px solid #FFFFFF;
+      border: 3px solid rgba(255,255,255,0.9);
       border-radius: 50%;
-      box-shadow: inset 0 0 8px rgba(0,0,0,0.4), 0 6px 16px rgba(0,0,0,0.6);
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.6) 0%, rgba(200,200,200,0.15) 60%, rgba(50,50,50,0.8) 100%);
+      box-shadow: inset 0 0 12px rgba(0,0,0,0.5), 0 6px 18px rgba(0,0,0,0.7);
       transform-style: preserve-3d;
       transition: transform 0.3s ease-out;
     }
@@ -105,18 +107,14 @@
       top: 0; left: 0;
       width: 100%; height: 100%;
       border-radius: 50%;
-      background:
-        radial-gradient(circle at 30% 30%, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0) 60%),
-        rgba(200,230,255,0.08);
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0) 60%);
       backdrop-filter: blur(2px);
       pointer-events: none;
       transition: background 0.3s ease-out;
     }
     .capsule:hover { transform: scale(1.1); }
     .capsule:hover .capsule-overlay {
-      background:
-        radial-gradient(circle at 30% 30%, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0) 60%),
-        rgba(200,230,255,0.12);
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0) 60%);
     }
 
     /* Hero overlay */
@@ -283,18 +281,17 @@
   </style>
 </head>
 <body>
-  <!-- Grid background -->
-  <div class="grid"></div>
-  <div class="grid-overlay"></div>
-
   <!-- Navbar -->
   <nav>
     <div class="logo">La Cápsula</div>
     <button id="joinBtn">JOIN THE CAPSULE</button>
   </nav>
 
-  <!-- 3D Scene Container -->
-  <div class="scene"></div>
+  <!-- 3D Grid Floor and Capsules -->
+  <div class="scene">
+    <div class="grid-plane"></div>
+    <div class="grid-overlay"></div>
+  </div>
 
   <!-- Hero Text Overlay -->
   <div class="hero-overlay">
@@ -382,7 +379,7 @@
 
     // Main animation loop (requestAnimationFrame)
     function update() {
-      const t = performance.now();
+      const t = performance.now() / 1000;
       capsules.forEach(capsule => {
         let x = capsule.baseX + Math.sin(t * capsule.speedX + capsule.phaseX) * capsule.amplitudeX;
         let y = capsule.baseY + Math.sin(t * capsule.speedY + capsule.phaseY) * capsule.amplitudeY;
