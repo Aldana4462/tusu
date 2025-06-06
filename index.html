@@ -41,7 +41,7 @@ button.buy:hover{background:#19c9a4;}
 <section id="info">
 <h2>What is La Cápsula?</h2>
 <p>Be part of a unique digital living artwork. Each capsule is a unique spot in this infinite breathing field.</p>
-<p id="counter">0 / 9 joined</p>
+<p id="counter">0 / 100 joined</p>
 <button class="buy">BUY A CAPSULE</button>
 </section>
 <div id="modal">
@@ -59,8 +59,25 @@ button.buy:hover{background:#19c9a4;}
 <script>
 /* ----- Data Structures ----- */
 const capsuleData=[];
-for(let i=1;i<=9;i++){
- capsuleData.push({id:i,x:Math.random()*600-300,y:Math.random()*400-200,z:Math.random()*600-300,phiX:Math.random()*Math.PI*2,phiY:Math.random()*Math.PI*2,phiZ:Math.random()*Math.PI*2,msg:'',url:'',claimed:false});
+// generate 100 capsules with randomized base positions across the viewport
+for(let i=1;i<=100;i++){
+ capsuleData.push({
+  id:i,
+  // base position in viewport units
+  baseX:Math.random()*90+5,
+  baseY:Math.random()*90+5,
+  // oscillation settings
+  ampX:Math.random()*20+10,
+  ampY:Math.random()*15+10,
+  phaseX:Math.random()*Math.PI*2,
+  phaseY:Math.random()*Math.PI*2,
+  speedX:Math.random()*0.001+0.0005,
+  speedY:Math.random()*0.001+0.0005,
+  // depth for 3D scaling
+  z:Math.random()*600-300,
+  phiZ:Math.random()*Math.PI*2,
+  msg:'',url:'',claimed:false
+ });
 }
 const particles=[];
 for(let i=0;i<20;i++){
@@ -117,18 +134,17 @@ function animate(t){
   const y=p.y+p.amp*Math.cos(time*p.speed+p.phase);
   p.el.style.transform=`translate(${x}px,${y}px)`;
  });
- // capsules
+ // capsules drift around their base positions
  capsuleData.forEach(c=>{
   const range=300;
-  c.x+=Math.sin(time*0.2+c.phiX)*0.3;
-  c.y+=Math.cos(time*0.15+c.phiY)*0.3;
+  // update depth for scaling effect
   c.z+=Math.sin(time*0.25+c.phiZ)*0.3;
-  // wrap
-  if(c.x>range) c.x=-range; if(c.x<-range) c.x=range;
-  if(c.y>range) c.y=-range; if(c.y<-range) c.y=range;
   if(c.z>range) c.z=-range; if(c.z<-range) c.z=range;
   const scale=1+(c.z/300);
-  c.el.style.transform=`translate(calc(50% + ${c.x}px),calc(50% + ${c.y}px)) scale(${scale})`;
+  // compute viewport position using sinusoidal offsets
+  const x=c.baseX+Math.sin(time*c.speedX+c.phaseX)*c.ampX;
+  const y=c.baseY+Math.cos(time*c.speedY+c.phaseY)*c.ampY;
+  c.el.style.transform=`translate(-50%, -50%) translate(${x}vw, ${y}vh) scale(${scale})`;
  });
  // background breathing
  const glow=0.5+0.5*Math.sin(time*0.5);
@@ -163,7 +179,7 @@ function updateSelectOptions(){
   op.value=c.id;op.textContent=c.id;select.appendChild(op);
  });
  if(select.options.length===0){select.disabled=true;}
- counter.textContent=`${capsuleData.filter(c=>c.claimed).length} / 9 joined`;
+ counter.textContent=`${capsuleData.filter(c=>c.claimed).length} / 100 joined`;
 }
 function claimCapsule(e){
  e.preventDefault();
