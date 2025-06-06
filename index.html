@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>La Cápsula</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* Navbar Styling */
+nav {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  background: transparent;
+  z-index: 1000;
+}
+.logo {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: 24px;
+  color: #FFFFFF;
+  text-shadow: 0 0 5px rgba(255,255,255,0.3);
+}
+#joinBtn {
+  background: #1DE9B6;
+  color: #FFFFFF;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  cursor: pointer;
+  transition: transform 0.2s ease-out;
+  font-family: 'Montserrat', sans-serif;
+}
+#joinBtn:hover { transform: scale(1.05); }
+
+/* Grid-Plane Styling and Animation */
+.scene {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100vh;
+  perspective: 800px;
+  perspective-origin: 50% 20%;
+  transform-style: preserve-3d;
+  overflow: hidden;
+  background: #000;
+}
+.grid-plane {
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 200vw; height: 200vh;
+  transform-origin: center top;
+  background:
+    repeating-linear-gradient(0deg, transparent, transparent 49px, #00e5ff 50px, #00e5ff 51px),
+    repeating-linear-gradient(90deg, transparent, transparent 49px, #00e5ff 50px, #00e5ff 51px),
+    #000;
+  filter: blur(1px);
+  box-shadow: inset 0 0 0 2000px rgba(0,0,0,0.6);
+  transform: translate(-50%, -50%) rotateX(60deg) translateZ(-200px);
+  will-change: transform;
+}
+
+/* Capsule Crystal Effect and Animation */
+.capsules-container {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100vh;
+  transform-style: preserve-3d;
+}
+.capsule {
+  position: absolute;
+  width: 80px; height: 80px;
+  border: 3px solid rgba(255,255,255,0.9);
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%,
+                              rgba(255,255,255,0.6) 0%,
+                              rgba(200,200,200,0.15) 60%,
+                              rgba(50,50,50,0.8) 100%);
+  box-shadow: inset 0 0 12px rgba(0,0,0,0.5),
+              0 6px 18px rgba(0,0,0,0.7);
+  transform-style: preserve-3d;
+  transition: transform 0.3s ease-out;
+  will-change: transform;
+}
+.capsule-overlay {
+  position: absolute; top: 0; left: 0;
+  width: 100%; height: 100%;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 30% 30%,
+                    rgba(255,255,255,0.5) 0%,
+                    rgba(255,255,255,0) 60%),
+    rgba(200,230,255,0.08);
+  backdrop-filter: blur(2px);
+  pointer-events: none;
+}
+.capsule:hover { transform: scale(1.1) !important; }
+.capsule:hover .capsule-overlay {
+  background:
+    radial-gradient(circle at 30% 30%,
+                    rgba(255,255,255,0.7) 0%,
+                    rgba(255,255,255,0) 50%),
+    rgba(200,230,255,0.12);
+}
+
+/* Modal & Form Styling */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100vh;
+  background: rgba(0,0,0,0.9);
+  align-items: center;
+  justify-content: center;
+  z-index: 1001;
+}
+.modal-content {
+  background: #1A1A1A;
+  padding: 30px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 400px;
+  position: relative;
+  color: #FFFFFF;
+  font-family: 'Montserrat', sans-serif;
+}
+#closeModal {
+  position: absolute;
+  top: 10px; right: 10px;
+  color: #FFFFFF;
+  font-size: 28px;
+  cursor: pointer;
+}
+#purchaseForm label {
+  display: block;
+  margin-top: 15px;
+  font-size: 14px;
+  color: #E0E0E0;
+}
+#purchaseForm input,
+#purchaseForm textarea {
+  width: 100%;
+  margin-top: 5px;
+  padding: 8px;
+  background: #222;
+  color: #FFF;
+  border: 1px solid #444;
+  border-radius: 4px;
+  font-family: 'Montserrat', sans-serif;
+}
+#purchaseForm textarea {
+  resize: none;
+  height: 80px;
+}
+#purchaseForm button[type="submit"] {
+  margin-top: 20px;
+  background: #FF4081;
+  color: #FFF;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  width: 100%;
+  transition: transform 0.2s ease-out;
+  font-family: 'Montserrat', sans-serif;
+}
+#purchaseForm button[type="submit"]:hover { transform: scale(1.05); }
+.disclaimer {
+  font-size: 12px;
+  color: rgba(224,224,224,0.7);
+  margin-top: 10px;
+  font-family: 'Montserrat', sans-serif;
+}
+
+/* Explanation Section */
+.explanation {
+  padding: 80px 20px;
+  text-align: center;
+  color: #FFFFFF;
+  font-family: 'Montserrat', sans-serif;
+  background: #000;
+}
+.explanation h2 {
+  font-size: 32px;
+  margin-bottom: 20px;
+}
+.explanation p { margin: 10px 0; }
+#joinBtn2 {
+  background: #1DE9B6;
+  color: #FFFFFF;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  cursor: pointer;
+  transition: transform 0.2s ease-out;
+  font-family: 'Montserrat', sans-serif;
+  margin-top: 20px;
+}
+#joinBtn2:hover { transform: scale(1.05); }
+
+/* Responsive Tweaks */
+@media (max-width: 768px) {
+  .capsule {
+    width: 60px; height: 60px;
+    border: 2px solid rgba(255,255,255,0.9);
+  }
+  .capsule-overlay {
+    backdrop-filter: blur(1px);
+  }
+  .grid-plane { filter: blur(0.5px); }
+  .explanation h2 { font-size: 24px; }
+  #joinBtn, #joinBtn2,
+  #purchaseForm button[type="submit"],
+  #purchaseForm input,
+  #purchaseForm textarea { width: 100%; }
+}
+</style>
+</head>
+<body>
+<!-- Navbar -->
+<nav>
+  <div class="logo">La Cápsula</div>
+  <button id="joinBtn">BUY A CAPSULE</button>
+</nav>
+
+<!-- Scene & Grid -->
+<div class="scene">
+  <div class="grid-plane"></div>
+  <!-- Capsules Container -->
+  <div class="capsules-container"></div>
+  <!-- Hero Overlay removed (no hero text beyond buy button) -->
+</div>
+
+<!-- Explanation Section -->
+<div class="explanation">
+  <h2>WHAT IS LA CÁPSULA?</h2>
+  <p>Be part of a unique digital, living online artwork. Each capsule is empty until purchased. Captures your presence in an infinite, breathing field.</p>
+  <p id="counter">0 / 9 joined</p>
+  <button id="joinBtn2">BUY A CAPSULE</button>
+</div>
+
+<!-- Modal Form -->
+<div id="formModal" class="modal">
+  <div class="modal-content">
+    <span id="closeModal">&times;</span>
+    <h2>ENTER YOUR CAPSULE DETAILS</h2>
+    <form id="purchaseForm">
+      <label for="capsuleNumber">Capsule Number (1–9)</label>
+      <input type="number" id="capsuleNumber" min="1" max="9" required>
+      <label for="capsuleMessage">Your Message</label>
+      <textarea id="capsuleMessage" maxlength="100" placeholder="Type a message" required></textarea>
+      <label for="capsuleLink">Optional Link</label>
+      <input type="url" id="capsuleLink" placeholder="https://example.com">
+      <button type="submit">SUBMIT</button>
+      <p class="disclaimer">Payment simulated. Once submitted, cannot edit.</p>
+    </form>
+  </div>
+</div>
+
+<script>
+// Initialize capsule data
+const capsules = [];
+for (let i = 0; i < 9; i++) {
+  capsules.push({
+    id: i + 1,
+    baseX: Math.random() * 100 - 50,
+    baseY: Math.random() * 100 - 50,
+    baseZ: Math.random() * 1000 - 500,
+    phaseX: Math.random() * 2 * Math.PI,
+    phaseY: Math.random() * 2 * Math.PI,
+    phaseZ: Math.random() * 2 * Math.PI,
+    speedX: Math.random() * 0.001 + 0.0005,
+    speedY: Math.random() * 0.001 + 0.0005,
+    speedZ: Math.random() * 0.002 + 0.0005,
+    amplitudeX: Math.random() * 10 + 5,
+    amplitudeY: Math.random() * 10 + 5,
+    amplitudeZ: Math.random() * 200 + 100,
+    message: "",
+    link: ""
+  });
+}
+
+// Render capsules
+function renderCapsules() {
+  const container = document.querySelector('.capsules-container');
+  capsules.forEach(capsule => {
+    const el = document.createElement('div');
+    el.className = 'capsule';
+    el.id = `capsule-${capsule.id}`;
+    const overlay = document.createElement('div');
+    overlay.className = 'capsule-overlay';
+    el.appendChild(overlay);
+    container.appendChild(el);
+  });
+}
+
+// Animate capsules in 3D
+function updateCapsules() {
+  const t = performance.now() / 1000;
+  capsules.forEach(capsule => {
+    const x = capsule.baseX + Math.sin(t * capsule.speedX + capsule.phaseX) * capsule.amplitudeX;
+    const y = capsule.baseY + Math.sin(t * capsule.speedY + capsule.phaseY) * capsule.amplitudeY;
+    const z = capsule.baseZ + Math.sin(t * capsule.speedZ + capsule.phaseZ) * capsule.amplitudeZ;
+    const scale = ((z + 500) / 1000) + 0.2;
+    const el = document.getElementById(`capsule-${capsule.id}`);
+    el.style.transform = `translate3d(${x}vw, ${y}vh, ${z}px) scale(${scale})`;
+
+    if (z > 600 || z < -600) {
+      capsule.baseZ = Math.random() * 1000 - 500;
+      capsule.phaseX = Math.random() * 2 * Math.PI;
+      capsule.phaseY = Math.random() * 2 * Math.PI;
+      capsule.phaseZ = Math.random() * 2 * Math.PI;
+      capsule.speedX = Math.random() * 0.001 + 0.0005;
+      capsule.speedY = Math.random() * 0.001 + 0.0005;
+      capsule.speedZ = Math.random() * 0.002 + 0.0005;
+      capsule.amplitudeX = Math.random() * 10 + 5;
+      capsule.amplitudeY = Math.random() * 10 + 5;
+      capsule.amplitudeZ = Math.random() * 200 + 100;
+    }
+    if (x > 60 || x < -60) capsule.baseX = Math.random() * 100 - 50;
+    if (y > 60 || y < -60) capsule.baseY = Math.random() * 100 - 50;
+  });
+  requestAnimationFrame(updateCapsules);
+}
+
+// Animate grid-plane ("campo vivo")
+function updateGrid() {
+  const t = performance.now() / 1000;
+  const angleBase = 60;
+  const newAngle = angleBase + Math.sin(t * 0.5) * 2;
+  const newZ = -200 + Math.sin(t * 0.3) * 20;
+  const grid = document.querySelector('.grid-plane');
+  grid.style.transform = `translate(-50%, -50%) rotateX(${newAngle}deg) translateZ(${newZ}px)`;
+  requestAnimationFrame(updateGrid);
+}
+
+// Modal show/hide logic
+let modal;
+let joinBtn;
+let joinBtn2;
+let closeModal;
+let form;
+
+document.addEventListener('DOMContentLoaded', () => {
+  modal = document.getElementById('formModal');
+  joinBtn = document.getElementById('joinBtn');
+  joinBtn2 = document.getElementById('joinBtn2');
+  closeModal = document.getElementById('closeModal');
+  form = document.getElementById('purchaseForm');
+
+  joinBtn.addEventListener('click', () => { modal.style.display = 'flex'; });
+  joinBtn2.addEventListener('click', () => { modal.style.display = 'flex'; });
+  closeModal.addEventListener('click', () => { modal.style.display = 'none'; });
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const num = parseInt(document.getElementById('capsuleNumber').value);
+    const msg = document.getElementById('capsuleMessage').value;
+    const link = document.getElementById('capsuleLink').value;
+    capsules[num - 1].message = msg;
+    capsules[num - 1].link = link;
+    console.log(`Capsule ${num} assigned. Message: ${msg}. Link: ${link}`);
+    alert(`Capsule ${num} purchased!`);
+    modal.style.display = 'none';
+    form.reset();
+    updateCounter();
+  });
+
+  renderCapsules();
+  updateCapsules();
+  updateGrid();
+  updateCounter();
+});
+
+// Handle form submission and updateCounter
+function updateCounter() {
+  const purchasedCount = capsules.filter(c => c.message !== "").length;
+  document.getElementById('counter').textContent = `${purchasedCount} / 9 joined`;
+}
+</script>
+</body>
+</html>
