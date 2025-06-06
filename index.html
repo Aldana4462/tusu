@@ -7,7 +7,7 @@
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
-    /* Estilos Grid 3D y Movimiento */
+    /* Reset and base styles */
     body {
       margin: 0;
       font-family: 'Montserrat', sans-serif;
@@ -15,19 +15,32 @@
       background: #000;
       color: #fff;
     }
+
+    /* Grid-Plane Styling */
+    .scene {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      perspective: 800px;
+      perspective-origin: 50% 20%;
+      transform-style: preserve-3d;
+      overflow: hidden;
+    }
     .grid-plane {
       position: absolute;
       left: 50%;
-      bottom: -50vh;
+      top: 50%;
       width: 200vw;
       height: 200vh;
-      transform: rotateX(60deg) translateZ(-200px);
-      transform-origin: top center;
+      transform-origin: center top;
       background:
-        repeating-linear-gradient(#00e5ff 0 2px, transparent 2px 40px),
-        repeating-linear-gradient(90deg, #00e5ff 0 2px, transparent 2px 40px);
+        repeating-linear-gradient(0deg, transparent, transparent 49px, #00e5ff 50px, #00e5ff 51px),
+        repeating-linear-gradient(90deg, transparent, transparent 49px, #00e5ff 50px, #00e5ff 51px),
+        #000;
       filter: blur(1px);
-      z-index: -1;
+      transform: translate(-50%, -50%) rotateX(60deg) translateZ(-200px);
     }
     .grid-overlay {
       position: absolute;
@@ -37,7 +50,38 @@
       height: 100%;
       background: rgba(0,0,0,0.6);
       pointer-events: none;
-      z-index: 0;
+    }
+
+    /* Capsule Crystal Effect */
+    .capsules-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; transform-style: preserve-3d; }
+    .capsule {
+      position: absolute;
+      width: 80px;
+      height: 80px;
+      border: 3px solid rgba(255,255,255,0.9);
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.6) 0%, rgba(200,200,200,0.15) 60%, rgba(50,50,50,0.8) 100%);
+      box-shadow: inset 0 0 12px rgba(0,0,0,0.5), 0 6px 18px rgba(0,0,0,0.7);
+      transform-style: preserve-3d;
+      transition: transform 0.3s ease-out;
+      will-change: transform;
+    }
+    .capsule-overlay {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0) 60%),
+        rgba(200,230,255,0.08);
+      backdrop-filter: blur(2px);
+      pointer-events: none;
+    }
+    .capsule:hover { transform: scale(1.1) !important; }
+    .capsule:hover .capsule-overlay {
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0) 50%),
+        rgba(200,230,255,0.12);
     }
 
     /* Navbar */
@@ -48,88 +92,41 @@
       width: 100%;
       height: 60px;
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      justify-content: space-between;
       padding: 0 20px;
-      box-sizing: border-box;
       background: transparent;
       z-index: 1000;
     }
-    nav .logo {
+    .logo {
       font-weight: 700;
       font-size: 24px;
+      color: #FFFFFF;
       text-shadow: 0 0 5px rgba(255,255,255,0.3);
     }
-    nav button {
+    #joinBtn {
       background: #1DE9B6;
-      color: #fff;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 4px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      color: #FFFFFF;
       text-transform: uppercase;
       letter-spacing: 1px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
       cursor: pointer;
       transition: transform 0.2s ease-out;
+      font-family: 'Montserrat', sans-serif;
     }
-    nav button:hover { transform: scale(1.05); }
+    #joinBtn:hover { transform: scale(1.05); }
 
-    /* 3D Scene Container */
-    .scene {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100vh;
-      perspective: 800px;
-      perspective-origin: 50% 20%;
-      overflow: hidden;
-      transform-style: preserve-3d;
-      z-index: 2;
-    }
-
-    /* Estilos Cápsula Cristal */
-    .capsule {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      width: 80px;
-      height: 80px;
-      border: 3px solid rgba(255,255,255,0.9);
-      border-radius: 50%;
-      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.6) 0%, rgba(200,200,200,0.15) 60%, rgba(50,50,50,0.8) 100%);
-      box-shadow: inset 0 0 12px rgba(0,0,0,0.5), 0 6px 18px rgba(0,0,0,0.7);
-      transform-style: preserve-3d;
-      transition: transform 0.3s ease-out;
-    }
-    .capsule-overlay {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      border-radius: 50%;
-        background:
-          radial-gradient(circle at 30% 30%, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0) 60%),
-          rgba(200,230,255,0.08);
-        backdrop-filter: blur(2px);
-        pointer-events: none;
-        transition: background 0.3s ease-out;
-    }
-    .capsule:hover { transform: scale(1.1) !important; }
-    .capsule:hover .capsule-overlay {
-        background:
-          radial-gradient(circle at 30% 30%, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0) 50%),
-          rgba(200,230,255,0.12);
-    }
-
-    /* Hero overlay */
+    /* Hero Overlay */
     .hero-overlay {
       position: absolute;
-      top: 50%;
-      left: 50%;
+      top: 50%; left: 50%;
       transform: translate(-50%, -50%);
-      text-align: center;
       z-index: 2;
       pointer-events: none;
+      text-align: center;
     }
     .hero-overlay .text-box {
       background: rgba(0,0,0,0.4);
@@ -140,17 +137,18 @@
     .hero-overlay h1 {
       font-weight: 700;
       font-size: 48px;
-      margin: 0;
+      color: #FFFFFF;
       text-shadow: 0 0 10px rgba(255,255,255,0.4);
+      margin: 0;
     }
     .hero-overlay p {
       font-weight: 600;
       font-size: 18px;
-      margin: 10px 0 0;
       color: rgba(255,255,255,0.8);
+      margin-top: 10px;
     }
 
-    /* Explicación */
+    /* Explanation Section */
     .explanation {
       background: #0F0F0F;
       padding: 60px 20px;
@@ -161,44 +159,47 @@
       margin-top: 100vh;
     }
     .explanation h2 {
+      font-weight: 700;
       font-size: 32px;
+      color: #FFFFFF;
       margin-bottom: 20px;
     }
     .explanation p {
+      font-weight: 400;
       font-size: 18px;
+      color: rgba(224,224,224,0.9);
       line-height: 1.5;
       max-width: 800px;
       margin: 0 auto 20px;
-      color: rgba(224,224,224,0.9);
     }
     #counter {
-      color: #1DE9B6;
       font-weight: 600;
+      font-size: 18px;
+      color: #1DE9B6;
       margin-bottom: 20px;
     }
-    .explanation button {
+    #joinBtn2 {
       background: #FF4081;
-      color: #fff;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 4px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      color: #FFFFFF;
       text-transform: uppercase;
       letter-spacing: 1px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
       cursor: pointer;
       transition: transform 0.2s ease-out;
+      font-family: 'Montserrat', sans-serif;
     }
-    .explanation button:hover { transform: scale(1.05); }
+    #joinBtn2:hover { transform: scale(1.05); }
 
-    /* Modal styles */
+    /* Modal Form */
     .modal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100vh;
-      background: rgba(0,0,0,0.9);
       display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100vh;
+      background: rgba(0,0,0,0.9);
       align-items: center;
       justify-content: center;
       z-index: 1001;
@@ -210,34 +211,35 @@
       width: 90%;
       max-width: 400px;
       position: relative;
-      color: #FFF;
+      color: #FFFFFF;
     }
     #closeModal {
       position: absolute;
-      top: 10px;
-      right: 10px;
+      top: 10px; right: 10px;
+      color: #FFFFFF;
       font-size: 28px;
       cursor: pointer;
     }
-    .modal-content label {
+    #entryForm label {
       display: block;
-      margin-top: 10px;
+      margin-top: 15px;
       font-size: 14px;
+      color: #E0E0E0;
     }
-    .modal-content input,
-    .modal-content textarea {
+    #entryForm input,
+    #entryForm textarea {
       width: 100%;
+      margin-top: 5px;
       padding: 8px;
       background: #222;
       color: #FFF;
       border: 1px solid #444;
       border-radius: 4px;
-      margin-top: 5px;
-      box-sizing: border-box;
-      resize: vertical;
+      font-family: 'Montserrat', sans-serif;
     }
-    .modal-content textarea { height: 80px; }
-    .modal-content button[type="submit"] {
+    #entryForm textarea { resize: none; height: 80px; }
+    #entryForm button[type="submit"] {
+      margin-top: 20px;
       background: #FF4081;
       color: #FFF;
       text-transform: uppercase;
@@ -247,17 +249,17 @@
       border-radius: 4px;
       cursor: pointer;
       width: 100%;
-      margin-top: 20px;
       transition: transform 0.2s ease-out;
+      font-family: 'Montserrat', sans-serif;
     }
-    .modal-content button[type="submit"]:hover { transform: scale(1.05); }
+    #entryForm button[type="submit"]:hover { transform: scale(1.05); }
     .disclaimer {
       font-size: 12px;
       color: rgba(224,224,224,0.7);
       margin-top: 10px;
+      font-family: 'Montserrat', sans-serif;
     }
 
-    /* Animaciones Sinusoidales */
     /* Footer */
     footer {
       background: rgba(0,0,0,0.7);
@@ -265,17 +267,14 @@
       padding: 20px;
       color: rgba(255,255,255,0.6);
       font-size: 14px;
-      position: relative;
-      z-index: 2;
     }
-    footer a { color: #1DE9B6; margin: 0 10px; text-decoration: none; }
 
-    /* Ajustes Responsivos */
+    /* Responsive Styles */
     @media (max-width: 768px) {
       .capsule {
         width: 60px;
         height: 60px;
-        border-width: 2px;
+        border: 2px solid rgba(255,255,255,0.9);
       }
       .capsule-overlay { backdrop-filter: blur(1px); }
       .hero-overlay h1 { font-size: 28px; }
@@ -292,14 +291,15 @@
     <button id="joinBtn">JOIN THE CAPSULE</button>
   </nav>
 
-  <!-- Contenedor 3D (scene) -->
+  <!-- Campo Vivo Grid -->
   <div class="scene">
-    <!-- Campo Vivo (grid-plane) -->
     <div class="grid-plane"></div>
     <div class="grid-overlay"></div>
+    <!-- Capsules Container -->
+    <div class="capsules-container"></div>
   </div>
 
-  <!-- Hero Text Overlay -->
+  <!-- Hero Overlay -->
   <div class="hero-overlay">
     <div class="text-box">
       <h1>YOUR FACE. YOUR MESSAGE.</h1>
@@ -307,7 +307,7 @@
     </div>
   </div>
 
-  <!-- Explicación -->
+  <!-- Explanation Section -->
   <div class="explanation">
     <h2>WHAT IS LA CÁPSULA?</h2>
     <p>A digital time capsule open for 30 days. 1,000,000 potential spots. One chance to leave your mark. Upload your face. Write your message. Your presence will float forever.</p>
@@ -330,8 +330,8 @@
         <label for="faceEmail">Your Email</label>
         <input type="email" id="faceEmail" placeholder="you@example.com" required>
         <button type="submit">PAY & SUBMIT</button>
+        <p class="disclaimer">USD 3 / ARS 2000. Once you submit, you cannot edit or delete.</p>
       </form>
-      <p class="disclaimer">USD 3 / ARS 2000. Once you submit, you cannot edit or delete.</p>
     </div>
   </div>
 
@@ -343,11 +343,9 @@
   </footer>
 
   <script>
-    // Inicializar cápsulas
+    // Initialize capsule data
     const capsules = [];
     let joinedCount = 12;
-    const scene = document.querySelector('.scene');
-    const counter = document.getElementById('counter');
 
     for (let i = 0; i < 12; i++) {
       const baseX = Math.random() * 100 - 50;
@@ -370,8 +368,9 @@
       });
     }
 
-    // Renderizar cápsulas
+    // Render initial capsules
     function renderCapsules() {
+      const container = document.querySelector('.capsules-container');
       capsules.forEach(capsule => {
         const el = document.createElement('div');
         el.className = 'capsule';
@@ -379,19 +378,20 @@
         const overlay = document.createElement('div');
         overlay.className = 'capsule-overlay';
         el.appendChild(overlay);
-        scene.appendChild(el);
+        container.appendChild(el);
       });
     }
 
-    // Animación principal de cápsulas
+    // Animate capsules in 3D space
     function updateCapsules() {
       const t = performance.now() / 1000;
       capsules.forEach(capsule => {
-        let x = capsule.baseX + Math.sin(t * capsule.speedX + capsule.phaseX) * capsule.amplitudeX;
-        let y = capsule.baseY + Math.sin(t * capsule.speedY + capsule.phaseY) * capsule.amplitudeY;
-        let z = capsule.baseZ + Math.sin(t * capsule.speedZ + capsule.phaseZ) * capsule.amplitudeZ;
-
-        // Wrap z when out of bounds
+        const x = capsule.baseX + Math.sin(t * capsule.speedX + capsule.phaseX) * capsule.amplitudeX;
+        const y = capsule.baseY + Math.sin(t * capsule.speedY + capsule.phaseY) * capsule.amplitudeY;
+        const z = capsule.baseZ + Math.sin(t * capsule.speedZ + capsule.phaseZ) * capsule.amplitudeZ;
+        const scale = ((z + 500) / 1000) + 0.2;
+        const el = document.getElementById(`capsule-${capsule.id}`);
+        el.style.transform = `translate3d(${x}vw, ${y}vh, ${z}px) scale(${scale})`;
         if (z > 600 || z < -600) {
           capsule.baseZ = Math.random() * 1000 - 500;
           capsule.phaseX = Math.random() * Math.PI * 2;
@@ -406,41 +406,38 @@
         }
         if (x > 60 || x < -60) capsule.baseX = Math.random() * 100 - 50;
         if (y > 60 || y < -60) capsule.baseY = Math.random() * 100 - 50;
-
-        const scale = ((z + 500) / 1000) + 0.2;
-        const el = document.getElementById(`capsule-${capsule.id}`);
-        el.style.transform = `translate3d(${x}vw, ${y}vh, ${z}px) scale(${scale})`;
       });
       requestAnimationFrame(updateCapsules);
     }
-    // Animación del Campo Vivo
+
+    // Animate grid-plane (“campo vivo”)
     function updateGrid() {
       const t = performance.now() / 1000;
       const angleBase = 60;
       const newAngle = angleBase + Math.sin(t * 0.5) * 2;
       const newZ = -200 + Math.sin(t * 0.3) * 20;
-      const grid = document.querySelector(".grid-plane");
-      grid.style.transform = `rotateX(${newAngle}deg) translateZ(${newZ}px)`;
+      const grid = document.querySelector('.grid-plane');
+      grid.style.transform = `translate(-50%, -50%) rotateX(${newAngle}deg) translateZ(${newZ}px)`;
       requestAnimationFrame(updateGrid);
     }
 
-
-    // Manejo de Modal
+    // Modal show/hide logic
     function showModal() { document.getElementById('formModal').style.display = 'flex'; }
     function hideModal() { document.getElementById('formModal').style.display = 'none'; }
 
-    // Manejo de Envío de Formulario
+    document.getElementById('joinBtn').addEventListener('click', showModal);
+    document.getElementById('joinBtn2').addEventListener('click', showModal);
+    document.getElementById('closeModal').addEventListener('click', hideModal);
+
+    // Form submission handler
     document.getElementById('entryForm').addEventListener('submit', e => {
       e.preventDefault();
-      alert('Thank you! Your submission is received.');
-      hideModal();
       joinedCount++;
-      counter.textContent = joinedCount + ' / 1000000 joined';
-
+      document.getElementById('counter').textContent = joinedCount + ' / 1000000 joined';
       const baseX = Math.random() * 100 - 50;
       const baseY = Math.random() * 100 - 50;
       const baseZ = Math.random() * 1000 - 500;
-      const newCaps = {
+      const newCapsule = {
         id: capsules.length + 1,
         baseX,
         baseY,
@@ -455,24 +452,22 @@
         amplitudeY: Math.random() * 10 + 5,
         amplitudeZ: Math.random() * 200 + 100
       };
-      capsules.push(newCaps);
+      capsules.push(newCapsule);
+      const container = document.querySelector('.capsules-container');
       const el = document.createElement('div');
       el.className = 'capsule';
-      el.id = `capsule-${newCaps.id}`;
+      el.id = `capsule-${newCapsule.id}`;
       const overlay = document.createElement('div');
       overlay.className = 'capsule-overlay';
       el.appendChild(overlay);
-      scene.appendChild(el);
+      container.appendChild(el);
+      hideModal();
       e.target.reset();
     });
 
-    document.getElementById('joinBtn').addEventListener('click', showModal);
-    document.getElementById('joinBtn2').addEventListener('click', showModal);
-    document.getElementById('closeModal').addEventListener('click', hideModal);
-
     window.addEventListener('DOMContentLoaded', () => {
       renderCapsules();
-      counter.textContent = joinedCount + ' / 1000000 joined';
+      document.getElementById('counter').textContent = joinedCount + ' / 1000000 joined';
       updateGrid();
       updateCapsules();
     });
