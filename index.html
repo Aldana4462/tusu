@@ -7,16 +7,21 @@
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
-    /* General styles */
+    /* Base styles */
     body {
       margin: 0;
       font-family: 'Montserrat', sans-serif;
       overflow-x: hidden;
       background: url('https://images.pexels.com/photos/459225/pexels-photo-459225.jpeg') center/cover no-repeat;
       position: relative;
-      color: white;
+      color: #FFFFFF;
     }
-    /* Glitch overlay covering entire viewport */
+    /* Glitch overlay animation */
+    @keyframes glitchMove {
+      0% { transform: translate(0,0); }
+      50% { transform: translate(5px,-5px); }
+      100% { transform: translate(0,0); }
+    }
     .glitch-overlay {
       position: fixed;
       top: 0;
@@ -27,103 +32,56 @@
       opacity: 0.15;
       animation: glitchMove 8s linear infinite;
       pointer-events: none;
-    }
-    @keyframes glitchMove {
-      0% { transform: translate(0,0); }
-      50% { transform: translate(5px,-5px); }
-      100% { transform: translate(0,0); }
+      z-index: 1;
     }
     /* Navbar */
     nav {
       position: fixed;
       top: 0;
+      left: 0;
       width: 100%;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 20px;
+      padding: 15px 20px;
       box-sizing: border-box;
-      z-index: 10;
+      background: transparent;
+      z-index: 1000;
     }
     nav .logo {
       font-weight: 700;
       font-size: 24px;
+      color: #FFFFFF;
+      text-shadow: 0 0 5px rgba(255,255,255,0.3);
     }
     nav button {
       background: #1DE9B6;
+      color: #FFFFFF;
       border: none;
-      color: white;
-      padding: 12px 24px;
+      padding: 10px 20px;
       border-radius: 4px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
       text-transform: uppercase;
       letter-spacing: 1px;
       cursor: pointer;
       transition: transform 0.2s;
     }
-    nav button:hover {
-      transform: scale(1.05);
-    }
-    /* Hero section */
-    .hero {
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      padding: 0 20px;
-    }
-    .hero h1 {
-      font-size: 64px;
-      font-weight: 700;
-      margin: 0 0 20px;
-      text-shadow: 0 0 10px rgba(255,255,255,0.3);
-    }
-    .hero p {
-      font-size: 24px;
-      margin: 0 0 30px;
-      color: rgba(255,255,255,0.8);
-    }
-    .hero button {
-      background: #1DE9B6;
-      border: none;
-      color: white;
-      padding: 12px 24px;
-      border-radius: 4px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      cursor: pointer;
-      transition: transform 0.2s;
-    }
-    .hero button:hover { transform: scale(1.05); }
+    nav button:hover { transform: scale(1.05); }
 
-    /* Explanation section */
-    .explanation {
-      width: 100%;
-      background: rgba(0,0,0,0.5);
-      padding: 40px 20px;
-      text-align: center;
-    }
-    .explanation h2 {
-      font-size: 32px;
-      margin: 0 0 20px;
-    }
-    .explanation p {
-      font-size: 18px;
-      margin: 10px 0;
-    }
-    #counter {
-      color: #1DE9B6;
-      font-weight: 600;
-    }
-
-    /* Faces container */
+    /* Faces container visible on load */
     .faces-container {
-      position: relative;
+      position: absolute;
+      top: 60px;
+      left: 0;
       width: 100%;
-      height: calc(100vh * 2);
+      height: calc(100vh - 60px);
+      overflow: hidden;
+      z-index: 2;
+    }
+    @keyframes floatUpDown {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+      100% { transform: translateY(0); }
     }
     .face-circle {
       position: absolute;
@@ -132,39 +90,91 @@
       border: 4px solid #FFFFFF;
       border-radius: 50%;
       overflow: hidden;
-      box-shadow: inset 0 0 4px rgba(0,0,0,0.2);
+      box-shadow: inset 0 0 6px rgba(0,0,0,0.4), 0 2px 8px rgba(0,0,0,0.5);
       background-size: cover;
       background-position: center;
       animation: floatUpDown 5s ease-in-out infinite;
+      cursor: pointer;
       transition: transform 0.2s;
     }
-    .face-circle:hover {
-      transform: scale(1.1);
-    }
-    @keyframes floatUpDown {
-      0% { transform: translateY(0); }
-      50% { transform: translateY(-5px); }
-      100% { transform: translateY(0); }
-    }
+    .face-circle:hover { transform: scale(1.1); }
     .tooltip {
       position: absolute;
       bottom: 110%;
       left: 50%;
       transform: translateX(-50%) translateY(0);
-      background: rgba(0,0,0,0.7);
-      color: white;
+      background: rgba(0,0,0,0.8);
+      color: #FFFFFF;
+      font-size: 14px;
       padding: 6px 10px;
       border-radius: 4px;
-      white-space: nowrap;
       opacity: 0;
       transition: opacity 0.2s, transform 0.2s;
-      font-size: 14px;
+      white-space: nowrap;
       pointer-events: none;
     }
     .face-circle:hover .tooltip {
       opacity: 1;
       transform: translateX(-50%) translateY(-10px);
     }
+
+    /* Hero overlay */
+    .hero-overlay {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      z-index: 500;
+    }
+    .hero-overlay h1 {
+      font-weight: 700;
+      font-size: 48px;
+      margin: 0;
+      text-shadow: 0 0 10px rgba(255,255,255,0.4);
+    }
+    .hero-overlay p {
+      font-weight: 600;
+      font-size: 18px;
+      margin-top: 10px;
+      color: rgba(255,255,255,0.8);
+    }
+
+    /* Explanation section */
+    .explanation {
+      background: #0F0F0F;
+      padding: 60px 20px;
+      color: #E0E0E0;
+      text-align: center;
+    }
+    .explanation h2 {
+      font-size: 32px;
+      color: #FFFFFF;
+      margin-top: 0;
+    }
+    .explanation p {
+      font-size: 18px;
+      margin: 15px 0;
+      color: rgba(224,224,224,0.9);
+    }
+    #counter {
+      color: #1DE9B6;
+      font-weight: 600;
+    }
+    .explanation button {
+      background: #FF4081;
+      color: #FFFFFF;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: transform 0.2s;
+      margin-top: 20px;
+    }
+    .explanation button:hover { transform: scale(1.05); }
 
     /* Modal styles */
     .modal {
@@ -173,82 +183,91 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0,0,0,0.8);
+      background: rgba(0,0,0,0.9);
       display: none;
       align-items: center;
       justify-content: center;
-      z-index: 20;
+      z-index: 1001;
     }
     .modal-content {
       background: #1A1A1A;
-      padding: 20px;
+      padding: 30px;
       border-radius: 8px;
       width: 90%;
       max-width: 400px;
       position: relative;
-      color: white;
+      color: #FFFFFF;
     }
     #closeModal {
       position: absolute;
       top: 10px;
       right: 15px;
-      font-size: 30px;
-      cursor: pointer;
-    }
-    .modal-content h2 {
-      margin-top: 0;
       font-size: 28px;
-    }
-    .modal-content form {
-      display: flex;
-      flex-direction: column;
+      cursor: pointer;
     }
     .modal-content label {
       margin-top: 10px;
-      margin-bottom: 4px;
+      display: block;
       font-size: 14px;
     }
     .modal-content input,
     .modal-content textarea {
+      width: 100%;
       padding: 8px;
       border-radius: 4px;
-      border: 1px solid #555;
-      background: #333;
-      color: white;
-      resize: vertical;
+      border: 1px solid #444444;
+      background: #333333;
+      color: #FFFFFF;
+      box-sizing: border-box;
+      margin-top: 4px;
     }
+    .modal-content textarea { height: 80px; resize: vertical; }
     .modal-content button[type="submit"] {
-      margin-top: 15px;
       background: #FF4081;
+      color: #FFFFFF;
       border: none;
-      color: white;
-      padding: 10px 20px;
+      padding: 12px 20px;
       border-radius: 4px;
       text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 20px;
+      width: 100%;
       cursor: pointer;
+      transition: transform 0.2s;
     }
+    .modal-content button[type="submit"]:hover { transform: scale(1.05); }
     .disclaimer {
       font-size: 12px;
+      color: rgba(224,224,224,0.7);
       margin-top: 10px;
-      color: rgba(255,255,255,0.7);
     }
 
     /* Footer */
     footer {
-      background: rgba(0,0,0,0.7);
-      text-align: center;
+      background: #0F0F0F;
       padding: 20px;
-      color: rgba(255,255,255,0.6);
+      text-align: center;
+      color: #757575;
       font-size: 14px;
     }
-    footer a { color: rgba(255,255,255,0.6); margin: 0 5px; }
+    footer a {
+      color: #1DE9B6;
+      text-decoration: none;
+      margin: 0 10px;
+    }
 
-    /* Responsive */
+    /* Responsive adjustments */
     @media (max-width: 768px) {
-      .hero h1 { font-size: 32px; }
-      .hero p { font-size: 16px; }
-      .face-circle { width: 60px; height: 60px; }
-      .tooltip { font-size: 12px; }
+      .face-circle {
+        width: 60px;
+        height: 60px;
+        border-width: 3px;
+      }
+      .tooltip { font-size: 12px; padding: 4px 8px; }
+      .hero-overlay h1 { font-size: 28px; }
+      .hero-overlay p { font-size: 14px; }
+      nav { flex-direction: column; }
+      nav button { margin-top: 10px; width: 100%; }
     }
   </style>
 </head>
@@ -256,43 +275,43 @@
   <!-- Glitch overlay -->
   <div class="glitch-overlay"></div>
 
-  <!-- Navigation bar -->
+  <!-- Navbar -->
   <nav>
     <div class="logo">La Cápsula</div>
     <button id="joinBtn">JOIN THE CAPSULE</button>
   </nav>
 
-  <!-- Hero section -->
-  <section class="hero">
-    <h1>YOUR FACE. YOUR MESSAGE. FOREVER IN A TIME CAPSULE.</h1>
-    <p>30 DAYS. 5,000 SPOTS. NO EDITS. NO DELETES.</p>
-    <button id="ctaBtn">JOIN NOW – USD 3</button>
-  </section>
-
-  <!-- Explanation section -->
-  <div class="explanation">
-    <h2>WHAT IS THE CAPSULE?</h2>
-    <p>A digital time capsule open for 30 days. 5,000 souls. One chance. Upload your face. Write your message. Your presence will float forever.</p>
-    <p id="counter">0 / 5000 joined</p>
-  </div>
-
-  <!-- Faces container -->
+  <!-- Faces Container -->
   <div class="faces-container"></div>
 
-  <!-- Modal for form -->
+  <!-- Hero Text Overlay -->
+  <div class="hero-overlay">
+    <h1>YOUR FACE. YOUR MESSAGE.</h1>
+    <p>FOREVER IN THIS CAPSULE</p>
+  </div>
+
+  <!-- Explanation Section -->
+  <div class="explanation">
+    <h2>WHAT IS LA CÁPSULA?</h2>
+    <p>A digital time capsule open for 30 days. 1,000,000 potential spots. One chance to leave your mark. Upload your face. Write your message. Your presence will float forever.</p>
+    <p id="counter">12 / 1000000 joined</p>
+    <button id="joinBtn2">JOIN THE CAPSULE – USD 3</button>
+  </div>
+
+  <!-- Modal Form -->
   <div id="formModal" class="modal">
     <div class="modal-content">
       <span id="closeModal">&times;</span>
-      <h2>ENTER THE CAPSULE</h2>
+      <h2>ENTER LA CÁPSULA</h2>
       <form id="entryForm">
-        <label for="faceImage">Your face image</label>
+        <label for="faceImage">Upload Image</label>
         <input type="file" id="faceImage" accept="image/*" required>
-        <label for="faceMessage">Message</label>
+        <label for="faceMessage">Your Message (max 100 chars)</label>
         <textarea id="faceMessage" maxlength="100" placeholder="Your message" required></textarea>
-        <label for="faceLink">Link</label>
-        <input type="url" id="faceLink" placeholder="Optional link">
-        <label for="faceEmail">Email</label>
-        <input type="email" id="faceEmail" placeholder="Your email" required>
+        <label for="faceLink">Optional Link</label>
+        <input type="url" id="faceLink" placeholder="https://example.com">
+        <label for="faceEmail">Your Email</label>
+        <input type="email" id="faceEmail" placeholder="you@example.com" required>
         <button type="submit">PAY & SUBMIT</button>
       </form>
       <p class="disclaimer">USD 3 / ARS 2000. Once you submit, you cannot edit or delete.</p>
@@ -301,99 +320,97 @@
 
   <!-- Footer -->
   <footer>
-    <a href="#">Privacy Policy</a> |
-    <a href="#">Terms</a> |
+    <a href="#">Privacy Policy</a>
+    <a href="#">Terms</a>
     © 2025 La Cápsula. All rights reserved.
   </footer>
 
   <script>
-    // Sample faces array with placeholder images and messages
+    // Sample faces array with placeholder colors
     const faces = [
-      { id: 1, img: 'https://via.placeholder.com/100', message: 'Example message 1', link: 'https://example.com' },
-      { id: 2, img: 'https://via.placeholder.com/100', message: 'Example message 2', link: '' },
-      { id: 3, img: 'https://via.placeholder.com/100', message: 'Example message 3', link: '' },
-      { id: 4, img: 'https://via.placeholder.com/100', message: 'Example message 4', link: 'https://example.com' },
-      { id: 5, img: 'https://via.placeholder.com/100', message: 'Example message 5', link: '' },
-      { id: 6, img: 'https://via.placeholder.com/100', message: 'Example message 6', link: '' },
-      { id: 7, img: 'https://via.placeholder.com/100', message: 'Example message 7', link: '' },
-      { id: 8, img: 'https://via.placeholder.com/100', message: 'Example message 8', link: 'https://example.com' },
-      { id: 9, img: 'https://via.placeholder.com/100', message: 'Example message 9', link: '' },
-      { id: 10, img: 'https://via.placeholder.com/100', message: 'Example message 10', link: '' }
+      { id: 1, img: 'https://via.placeholder.com/100/FF0000', message: 'Example message 1', link: 'https://example.com' },
+      { id: 2, img: 'https://via.placeholder.com/100/00FF00', message: 'Example message 2', link: '' },
+      { id: 3, img: 'https://via.placeholder.com/100/0000FF', message: 'Example message 3', link: '' },
+      { id: 4, img: 'https://via.placeholder.com/100/FFFF00', message: 'Example message 4', link: 'https://example.com' },
+      { id: 5, img: 'https://via.placeholder.com/100/FF00FF', message: 'Example message 5', link: '' },
+      { id: 6, img: 'https://via.placeholder.com/100/00FFFF', message: 'Example message 6', link: '' },
+      { id: 7, img: 'https://via.placeholder.com/100/555555', message: 'Example message 7', link: '' },
+      { id: 8, img: 'https://via.placeholder.com/100/222222', message: 'Example message 8', link: 'https://example.com' },
+      { id: 9, img: 'https://via.placeholder.com/100/AAAAAA', message: 'Example message 9', link: '' },
+      { id: 10, img: 'https://via.placeholder.com/100/FFAA00', message: 'Example message 10', link: '' },
+      { id: 11, img: 'https://via.placeholder.com/100/00AAFF', message: 'Example message 11', link: '' },
+      { id: 12, img: 'https://via.placeholder.com/100/AA00FF', message: 'Example message 12', link: 'https://example.com' }
     ];
 
     const container = document.querySelector('.faces-container');
-    const counter = document.getElementById('counter');
+    const counterElement = document.getElementById('counter');
+    let counter = faces.length;
 
-    // Render faces on page load
-    function renderFaces(newFace) {
-      const faceData = newFace ? [newFace] : faces;
-      faceData.forEach(face => {
-        const circle = document.createElement('div');
-        circle.className = 'face-circle';
-        const top = Math.random()*80 + 10; // between 10 and 90
-        const left = Math.random()*80 + 10;
-        circle.style.top = top + '%';
-        circle.style.left = left + '%';
-        circle.style.backgroundImage = 'url(' + face.img + ')';
-
-        const tooltip = document.createElement('div');
-        tooltip.className = 'tooltip';
-        if (face.link) {
-          const link = document.createElement('a');
-          link.href = face.link;
-          link.target = '_blank';
-          link.style.color = 'white';
-          link.textContent = face.message;
-          tooltip.appendChild(link);
-        } else {
-          tooltip.textContent = face.message;
-        }
-
-        circle.appendChild(tooltip);
-        container.appendChild(circle);
-      });
-
-      // Update counter
-      counter.textContent = container.children.length + ' / 5000 joined';
+    // Render initial faces
+    function renderFaces() {
+      faces.forEach(face => addFaceToDOM(face));
+      counterElement.textContent = counter + ' / 1000000 joined';
     }
 
-    // Initial render
-    document.addEventListener('DOMContentLoaded', () => {
-      renderFaces();
-    });
+    // Add a face element to the DOM
+    function addFaceToDOM(face) {
+      const circle = document.createElement('div');
+      circle.className = 'face-circle';
+      circle.style.top = (Math.random() * 85 + 5) + '%';
+      circle.style.left = (Math.random() * 85 + 5) + '%';
+      circle.style.backgroundImage = 'url(' + face.img + ')';
 
-    // Modal handling
-    const joinButtons = [document.getElementById('joinBtn'), document.getElementById('ctaBtn')];
-    const modal = document.getElementById('formModal');
-    const closeModal = document.getElementById('closeModal');
+      const tooltip = document.createElement('div');
+      tooltip.className = 'tooltip';
+      if (face.link) {
+        const a = document.createElement('a');
+        a.href = face.link;
+        a.target = '_blank';
+        a.style.color = '#1DE9B6';
+        a.style.textDecoration = 'underline';
+        a.textContent = face.message;
+        tooltip.appendChild(a);
+      } else {
+        tooltip.textContent = face.message;
+      }
+      circle.appendChild(tooltip);
+      container.appendChild(circle);
+    }
 
-    joinButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        modal.style.display = 'flex';
-      });
-    });
-    closeModal.addEventListener('click', () => {
-      modal.style.display = 'none';
-    });
+    // Show modal
+    function showModal() {
+      document.getElementById('formModal').style.display = 'flex';
+    }
 
-    // Form submission handling
-    document.getElementById('entryForm').addEventListener('submit', function(e){
+    // Hide modal
+    function hideModal() {
+      document.getElementById('formModal').style.display = 'none';
+    }
+
+    // Handle form submission
+    document.getElementById('entryForm').addEventListener('submit', e => {
       e.preventDefault();
       alert('Thank you! Your submission is received.');
-      modal.style.display = 'none';
-
-      // Add new face to container with random position
+      hideModal();
+      counter++;
+      counterElement.textContent = counter + ' / 1000000 joined';
       const newFace = {
         id: Date.now(),
-        img: 'https://via.placeholder.com/100', // placeholder instead of uploaded image
+        img: URL.createObjectURL(document.getElementById('faceImage').files[0]),
         message: document.getElementById('faceMessage').value,
         link: document.getElementById('faceLink').value
       };
-      renderFaces(newFace);
-
-      // Reset form
-      this.reset();
+      addFaceToDOM(newFace);
+      e.target.reset();
     });
+
+    // Event listeners for buttons
+    document.getElementById('joinBtn').addEventListener('click', showModal);
+    document.getElementById('joinBtn2').addEventListener('click', showModal);
+    document.getElementById('closeModal').addEventListener('click', hideModal);
+
+    // Render faces on DOM ready
+    window.addEventListener('DOMContentLoaded', renderFaces);
   </script>
 </body>
 </html>
