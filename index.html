@@ -41,7 +41,7 @@ button.buy:hover{background:#19c9a4;}
 <section id="info">
 <h2>What is La Cápsula?</h2>
 <p>Be part of a unique digital living artwork. Each capsule is a unique spot in this infinite breathing field.</p>
-<p id="counter">0 / 9 joined</p>
+<p id="counter">0 / 100 joined</p>
 <button class="buy">BUY A CAPSULE</button>
 </section>
 <div id="modal">
@@ -59,8 +59,30 @@ button.buy:hover{background:#19c9a4;}
 <script>
 /* ----- Data Structures ----- */
 const capsuleData=[];
-for(let i=1;i<=9;i++){
- capsuleData.push({id:i,x:Math.random()*600-300,y:Math.random()*400-200,z:Math.random()*600-300,phiX:Math.random()*Math.PI*2,phiY:Math.random()*Math.PI*2,phiZ:Math.random()*Math.PI*2,msg:'',url:'',claimed:false});
+// Base position initialization for 100 bubbles
+for(let i=1;i<=100;i++){
+ const bubble={
+  id:i,
+  baseX:Math.random()*90+5,
+  baseY:Math.random()*90+5,
+  baseZ:-Math.random()*2000,
+  ampX:Math.random()*10+5,
+  ampY:Math.random()*10+5,
+  ampZ:Math.random()*200+200,
+  phaseX:Math.random()*Math.PI*2,
+  phaseY:Math.random()*Math.PI*2,
+  phaseZ:Math.random()*Math.PI*2,
+  speedX:Math.random()*0.0005+0.0002,
+  speedY:Math.random()*0.0005+0.0002,
+  speedZ:Math.random()*0.0003+0.0001,
+  msg:'',
+  url:'',
+  claimed:false,
+  element:null,
+  x:0,
+  y:0
+ };
+ capsuleData.push(bubble);
 }
 const particles=[];
 for(let i=0;i<20;i++){
@@ -94,11 +116,11 @@ function init(){
   d.className='capsule';
   const span=document.createElement('span');
   span.textContent=c.id;d.appendChild(span);
-  scene.appendChild(d);c.el=d;
+  scene.appendChild(d);c.element=d;
   d.addEventListener('mouseenter',()=>showTooltip(c));
   d.addEventListener('mouseleave',hideTooltip);
   d.addEventListener('click',(e)=>{showTooltip(c);e.stopPropagation();});
- });
+});
  updateSelectOptions();
  document.querySelectorAll('.buy').forEach(btn=>btn.addEventListener('click',openModal));
  modal.addEventListener('click',e=>{if(e.target===modal)closeModal();});
@@ -108,38 +130,40 @@ function init(){
 }
 
 /* ----- Animation ----- */
-function animate(t){
- const time=t/1000;
- // particles
+// Gentle wind drift animation
+function animate(){
+ const t=performance.now()/2000;
+ capsuleData.forEach(bubble=>{
+  const x=bubble.baseX+Math.sin(t*bubble.speedX+bubble.phaseX)*bubble.ampX;
+  const y=bubble.baseY+Math.cos(t*bubble.speedY+bubble.phaseY)*bubble.ampY;
+  const z=bubble.baseZ+Math.sin(t*bubble.speedZ+bubble.phaseZ)*bubble.ampZ;
+  const scale=1-(z/-2000);
+  // Clamp to viewport edges
+  bubble.x=Math.min(95,Math.max(5,x));
+  bubble.y=Math.min(95,Math.max(5,y));
+  bubble.element.style.transform=`translate(-50%,-50%) translate(${bubble.x}vw, ${bubble.y}vh) translateZ(${z}px) scale(${scale})`;
+  bubble.element.style.zIndex=Math.round((1-(z/-2000))*1000);
+ });
+ animateBackgroundParticles(t);
+ requestAnimationFrame(animate);
+}
+
+// Background particle movement and breathing glow
+function animateBackgroundParticles(t){
  particles.forEach(p=>{
   p.phase+=p.speed*0.01;
-  const x=p.x+p.amp*Math.sin(time*p.speed+p.phase);
-  const y=p.y+p.amp*Math.cos(time*p.speed+p.phase);
+  const x=p.x+p.amp*Math.sin(t*p.speed+p.phase);
+  const y=p.y+p.amp*Math.cos(t*p.speed+p.phase);
   p.el.style.transform=`translate(${x}px,${y}px)`;
  });
- // capsules
- capsuleData.forEach(c=>{
-  const range=300;
-  c.x+=Math.sin(time*0.2+c.phiX)*0.3;
-  c.y+=Math.cos(time*0.15+c.phiY)*0.3;
-  c.z+=Math.sin(time*0.25+c.phiZ)*0.3;
-  // wrap
-  if(c.x>range) c.x=-range; if(c.x<-range) c.x=range;
-  if(c.y>range) c.y=-range; if(c.y<-range) c.y=range;
-  if(c.z>range) c.z=-range; if(c.z<-range) c.z=range;
-  const scale=1+(c.z/300);
-  c.el.style.transform=`translate(calc(50% + ${c.x}px),calc(50% + ${c.y}px)) scale(${scale})`;
- });
- // background breathing
- const glow=0.5+0.5*Math.sin(time*0.5);
+ const glow=0.5+0.5*Math.sin(t*0.5);
  bg.style.background=`radial-gradient(circle at 50% 60%,rgba(255,255,255,${0.05+glow*0.05}),transparent 70%)`;
- requestAnimationFrame(animate);
 }
 
 /* ----- Tooltip ----- */
 function showTooltip(c){
  tooltipTarget=c;
- const rect=c.el.getBoundingClientRect();
+ const rect=c.element.getBoundingClientRect();
  tooltip.style.display='block';
  tooltip.innerHTML=c.claimed?`<strong>Capsule #${c.id}</strong><br>${c.msg}${c.url?`<br><a href="${c.url}" target="_blank">${c.url}</a>`:''}`:`Capsule #${c.id} – Empty`;
  const tooltipRect=tooltip.getBoundingClientRect();
@@ -163,7 +187,7 @@ function updateSelectOptions(){
   op.value=c.id;op.textContent=c.id;select.appendChild(op);
  });
  if(select.options.length===0){select.disabled=true;}
- counter.textContent=`${capsuleData.filter(c=>c.claimed).length} / 9 joined`;
+ counter.textContent=`${capsuleData.filter(c=>c.claimed).length} / 100 joined`;
 }
 function claimCapsule(e){
  e.preventDefault();
