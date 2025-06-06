@@ -16,8 +16,13 @@ button.buy:hover{background:#19c9a4;}
 #background{position:absolute;top:0;left:0;width:100%;height:100%;background:radial-gradient(circle at 50% 60%,rgba(255,255,255,0.1),transparent 70%);z-index:0;}
 .particle{position:absolute;border-radius:50%;background:radial-gradient(circle,rgba(180,220,255,0.3),rgba(0,0,255,0) 60%);pointer-events:none;}
 .capsule{position:absolute;border-radius:50%;border:2px solid #fff;width:80px;height:80px;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 30% 30%,rgba(255,255,255,0.6),rgba(255,255,255,0.1) 40%,rgba(255,255,255,0.05));box-shadow:0 0 8px rgba(255,255,255,0.3);transition:transform 0.2s;}
-.capsule span{font-size:1.2rem;font-weight:bold;text-shadow:0 1px 3px rgba(0,0,0,0.7);pointer-events:none;}
+.capsule{overflow:hidden;}
+.capsule img{position:absolute;width:100%;height:100%;top:0;left:0;border-radius:50%;object-fit:cover;}
+.capsule span{position:relative;font-size:1.2rem;font-weight:bold;text-shadow:0 1px 3px rgba(0,0,0,0.7);pointer-events:none;z-index:1;}
 .tooltip{position:absolute;padding:8px 12px;background:rgba(0,0,0,0.8);border:1px solid #1DE9B6;border-radius:4px;font-size:0.9rem;pointer-events:none;white-space:pre-line;z-index:1001;}
+#popup{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);display:none;align-items:center;justify-content:center;z-index:1500;}
+#popup .popup-content{background:#111;padding:20px;border-radius:6px;color:#fff;text-align:center;max-width:400px;width:90%;box-shadow:0 0 10px rgba(0,0,0,0.5);}
+#popup button{margin-top:15px;}
 #info{padding:80px 20px 40px;font-size:1.1rem;text-align:center;background:#000;}
 #info h2{font-size:2rem;margin-bottom:10px;}
 #info p{margin:10px 0;}
@@ -56,6 +61,12 @@ button.buy:hover{background:#19c9a4;}
 <button type="submit" class="buy">Submit</button>
 </form>
 </div>
+<div id="popup">
+ <div class="popup-content">
+  <p id="messageText"></p>
+  <button id="closePopup" class="buy">Close</button>
+ </div>
+</div>
 <script>
 /* ----- Data Structures ----- */
 const capsuleData=[];
@@ -77,6 +88,7 @@ for(let i=1;i<=100;i++){
   speedY:Math.random()*0.3+0.1,
   speedZ:Math.random()*0.2+0.05,
   msg:'',url:'',claimed:false,
+  img:i===1?'https://via.placeholder.com/80':'',
   el:null
  });
 }
@@ -96,6 +108,11 @@ const tooltip=document.createElement('div');
 tooltip.className='tooltip';
 scene.appendChild(tooltip);
 let tooltipTarget=null;
+const popup=document.getElementById('popup');
+const messageText=document.getElementById('messageText');
+const closePopup=document.getElementById('closePopup');
+closePopup.addEventListener('click',()=>popup.style.display='none');
+popup.addEventListener('click',e=>{if(e.target===popup)popup.style.display='none';});
 
 /* ----- Initialize ----- */
 function init(){
@@ -110,12 +127,17 @@ function init(){
  capsuleData.forEach(c=>{
   const d=document.createElement('div');
   d.className='capsule';
+  if(c.img){
+   const img=document.createElement('img');
+   img.src=c.img;
+   d.appendChild(img);
+  }
   const span=document.createElement('span');
   span.textContent=c.id;d.appendChild(span);
   scene.appendChild(d);c.el=d;
   d.addEventListener('mouseenter',()=>showTooltip(c));
   d.addEventListener('mouseleave',hideTooltip);
-  d.addEventListener('click',(e)=>{showTooltip(c);e.stopPropagation();});
+  d.addEventListener('click',(e)=>{showMessagePopup(c);e.stopPropagation();});
  });
  updateSelectOptions();
  document.querySelectorAll('.buy').forEach(btn=>btn.addEventListener('click',openModal));
@@ -172,6 +194,12 @@ function showTooltip(c){
 function hideTooltip(){
  tooltip.style.display='none';
  tooltipTarget=null;
+}
+
+function showMessagePopup(c){
+ hideTooltip();
+ messageText.textContent=c.claimed&&c.msg?c.msg:`Capsule #${c.id} – Empty`;
+ popup.style.display='flex';
 }
 
 /* ----- Modal Logic ----- */
