@@ -7,7 +7,7 @@
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
-    /* Global styles */
+    /* Grid background styling */
     body {
       margin: 0;
       font-family: 'Montserrat', sans-serif;
@@ -15,8 +15,6 @@
       background: #000;
       color: #fff;
     }
-
-    /* Grid background */
     .grid {
       position: fixed;
       top: 0;
@@ -54,7 +52,7 @@
       padding: 0 20px;
       box-sizing: border-box;
       background: transparent;
-      z-index: 5;
+      z-index: 1000;
     }
     nav .logo {
       font-weight: 700;
@@ -71,24 +69,25 @@
       text-transform: uppercase;
       letter-spacing: 1px;
       cursor: pointer;
-      transition: transform 0.2s;
+      transition: transform 0.2s ease-out;
     }
-    nav button:hover {
-      transform: scale(1.05);
-    }
+    nav button:hover { transform: scale(1.05); }
 
-    /* 3D scene container */
+    /* 3D Scene Container */
     .scene {
-      position: relative;
+      position: absolute;
+      top: 0;
+      left: 0;
       width: 100%;
       height: 100vh;
       perspective: 800px;
       perspective-origin: center center;
       overflow: hidden;
+      transform-style: preserve-3d;
       z-index: 2;
     }
 
-    /* Capsule 3D styling */
+    /* Capsule 3D & crystal effect */
     .capsule {
       position: absolute;
       left: 50%;
@@ -97,36 +96,44 @@
       height: 80px;
       border: 3px solid #FFFFFF;
       border-radius: 50%;
-      box-shadow: inset 0 0 6px rgba(0,0,0,0.4), 0 4px 12px rgba(0,0,0,0.5);
+      box-shadow: inset 0 0 8px rgba(0,0,0,0.4), 0 6px 16px rgba(0,0,0,0.6);
       transform-style: preserve-3d;
-      transition: transform 0.2s;
+      transition: transform 0.3s ease-out;
     }
     .capsule-overlay {
-      width: 100%;
-      height: 100%;
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
       border-radius: 50%;
-      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.6), rgba(255,255,255,0) 60%);
-      backdrop-filter: blur(1px);
-      transition: background 0.2s;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0) 60%),
+        rgba(200,230,255,0.08);
+      backdrop-filter: blur(2px);
+      pointer-events: none;
+      transition: background 0.3s ease-out;
     }
-    .capsule:hover {
-      transform: scale(1.1);
-    }
+    .capsule:hover { transform: scale(1.1); }
     .capsule:hover .capsule-overlay {
-      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), rgba(255,255,255,0) 60%);
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0) 60%),
+        rgba(200,230,255,0.12);
     }
 
-    /* Hero text overlay */
+    /* Hero overlay */
     .hero-overlay {
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
       text-align: center;
-      z-index: 4;
+      z-index: 2;
+      pointer-events: none;
+    }
+    .hero-overlay .text-box {
       background: rgba(0,0,0,0.4);
       padding: 10px 20px;
       border-radius: 4px;
+      display: inline-block;
     }
     .hero-overlay h1 {
       font-weight: 700;
@@ -141,23 +148,32 @@
       color: rgba(255,255,255,0.8);
     }
 
-    /* Explanation section */
+    /* Explanation Section */
     .explanation {
       background: #0F0F0F;
       padding: 60px 20px;
+      color: #E0E0E0;
       text-align: center;
+      position: relative;
+      z-index: 2;
+      margin-top: 100vh;
     }
     .explanation h2 {
       font-size: 32px;
-      margin-top: 0;
+      margin-bottom: 20px;
     }
     .explanation p {
       font-size: 18px;
-      margin: 15px auto;
+      line-height: 1.5;
       max-width: 800px;
+      margin: 0 auto 20px;
       color: rgba(224,224,224,0.9);
     }
-    #counter { color: #1DE9B6; font-weight: 600; }
+    #counter {
+      color: #1DE9B6;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
     .explanation button {
       background: #FF4081;
       color: #fff;
@@ -168,8 +184,7 @@
       text-transform: uppercase;
       letter-spacing: 1px;
       cursor: pointer;
-      transition: transform 0.2s;
-      margin-top: 20px;
+      transition: transform 0.2s ease-out;
     }
     .explanation button:hover { transform: scale(1.05); }
 
@@ -179,12 +194,12 @@
       top: 0;
       left: 0;
       width: 100%;
-      height: 100%;
+      height: 100vh;
       background: rgba(0,0,0,0.9);
       display: none;
       align-items: center;
       justify-content: center;
-      z-index: 6;
+      z-index: 1001;
     }
     .modal-content {
       background: #1A1A1A;
@@ -193,47 +208,51 @@
       width: 90%;
       max-width: 400px;
       position: relative;
+      color: #FFF;
     }
     #closeModal {
       position: absolute;
       top: 10px;
-      right: 15px;
+      right: 10px;
       font-size: 28px;
       cursor: pointer;
     }
     .modal-content label {
-      margin-top: 10px;
       display: block;
+      margin-top: 10px;
       font-size: 14px;
     }
     .modal-content input,
     .modal-content textarea {
       width: 100%;
       padding: 8px;
-      border-radius: 4px;
+      background: #222;
+      color: #FFF;
       border: 1px solid #444;
-      background: #333;
-      color: #fff;
+      border-radius: 4px;
+      margin-top: 5px;
       box-sizing: border-box;
-      margin-top: 4px;
+      resize: vertical;
     }
-    .modal-content textarea { height: 80px; resize: vertical; }
+    .modal-content textarea { height: 80px; }
     .modal-content button[type="submit"] {
       background: #FF4081;
-      color: #fff;
-      border: none;
-      padding: 12px;
-      border-radius: 4px;
+      color: #FFF;
       text-transform: uppercase;
       letter-spacing: 1px;
-      margin-top: 20px;
-      width: 100%;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 4px;
       cursor: pointer;
+      width: 100%;
+      margin-top: 20px;
+      transition: transform 0.2s ease-out;
     }
+    .modal-content button[type="submit"]:hover { transform: scale(1.05); }
     .disclaimer {
       font-size: 12px;
-      margin-top: 10px;
       color: rgba(224,224,224,0.7);
+      margin-top: 10px;
     }
 
     /* Footer */
@@ -243,16 +262,19 @@
       padding: 20px;
       color: rgba(255,255,255,0.6);
       font-size: 14px;
+      position: relative;
+      z-index: 2;
     }
     footer a { color: #1DE9B6; margin: 0 10px; text-decoration: none; }
 
-    /* Responsive */
+    /* Responsive adjustments */
     @media (max-width: 768px) {
       .capsule {
         width: 60px;
         height: 60px;
-        border-width: 3px;
+        border-width: 2px;
       }
+      .capsule-overlay { backdrop-filter: blur(1px); }
       .hero-overlay h1 { font-size: 28px; }
       .hero-overlay p { font-size: 14px; }
       nav { flex-direction: column; height: auto; padding: 10px; }
@@ -276,8 +298,10 @@
 
   <!-- Hero Text Overlay -->
   <div class="hero-overlay">
-    <h1>YOUR FACE. YOUR MESSAGE.</h1>
-    <p>FOREVER IN THIS CAPSULE</p>
+    <div class="text-box">
+      <h1>YOUR FACE. YOUR MESSAGE.</h1>
+      <p>FOREVER IN THIS CAPSULE</p>
+    </div>
   </div>
 
   <!-- Explanation Section -->
@@ -288,7 +312,7 @@
     <button id="joinBtn2">JOIN THE CAPSULE – USD 3</button>
   </div>
 
-  <!-- Modal Form -->
+  <!-- Form Modal -->
   <div id="formModal" class="modal">
     <div class="modal-content">
       <span id="closeModal">&times;</span>
@@ -297,7 +321,7 @@
         <label for="faceImage">Upload Image</label>
         <input type="file" id="faceImage" accept="image/*" required>
         <label for="faceMessage">Your Message (max 100 chars)</label>
-        <textarea id="faceMessage" maxlength="100" required></textarea>
+        <textarea id="faceMessage" maxlength="100" placeholder="Your message" required></textarea>
         <label for="faceLink">Optional Link</label>
         <input type="url" id="faceLink" placeholder="https://example.com">
         <label for="faceEmail">Your Email</label>
@@ -318,64 +342,73 @@
   <script>
     // Initialize capsule data
     const capsules = [];
-    const scene = document.querySelector('.scene');
-    const joinedCounter = document.getElementById('counter');
     let joinedCount = 12;
+    const scene = document.querySelector('.scene');
+    const counter = document.getElementById('counter');
 
-    // Create capsule elements in DOM
-    function createCapsule(c) {
-      const div = document.createElement('div');
-      div.className = 'capsule';
-      const overlay = document.createElement('div');
-      overlay.className = 'capsule-overlay';
-      div.appendChild(overlay);
-      scene.appendChild(div);
-      c.el = div;
-    }
-
-    // Render initial capsules
-    function initCapsules() {
-      for (let i = 0; i < 12; i++) {
-        const cap = {
-          id: i,
-          x: Math.random()*100 - 50,
-          y: Math.random()*100 - 50,
-          z: Math.random()*1000 - 500,
-          dx: (Math.random()*0.5 + 0.1) * (Math.random() < 0.5 ? 1 : -1),
-          dy: (Math.random()*0.5 + 0.1) * (Math.random() < 0.5 ? 1 : -1),
-          dz: (Math.random()*1 + 0.2) * (Math.random() < 0.5 ? 1 : -1)
-        };
-        capsules.push(cap);
-        createCapsule(cap);
-      }
-      updateCounter();
-    }
-
-    // Update counter text
-    function updateCounter() {
-      joinedCounter.textContent = joinedCount + ' / 1000000 joined';
-    }
-
-    // Animation loop
-    function updateCapsules() {
-      capsules.forEach(c => {
-        c.x += c.dx;
-        c.y += c.dy;
-        c.z += c.dz;
-        if (c.x > 50 || c.x < -50) c.dx *= -1;
-        if (c.y > 50 || c.y < -50) c.dy *= -1;
-        if (c.z > 600 || c.z < -600) {
-          c.z = -600;
-          c.x = Math.random()*100 - 50;
-          c.y = Math.random()*100 - 50;
-          c.dx = (Math.random()*0.5 + 0.1) * (Math.random() < 0.5 ? 1 : -1);
-          c.dy = (Math.random()*0.5 + 0.1) * (Math.random() < 0.5 ? 1 : -1);
-          c.dz = (Math.random()*1 + 0.2) * (Math.random() < 0.5 ? 1 : -1);
-        }
-        const scale = (c.z + 600) / 1200 + 0.1;
-        c.el.style.transform = `translate3d(${c.x}vw, ${c.y}vh, ${c.z}px) scale(${scale})`;
+    for (let i = 0; i < 12; i++) {
+      const baseX = Math.random() * 100 - 50;
+      const baseY = Math.random() * 100 - 50;
+      const baseZ = Math.random() * 1000 - 500;
+      capsules.push({
+        id: i + 1,
+        baseX,
+        baseY,
+        baseZ,
+        phaseX: Math.random() * Math.PI * 2,
+        phaseY: Math.random() * Math.PI * 2,
+        phaseZ: Math.random() * Math.PI * 2,
+        speedX: Math.random() * 0.001 + 0.0005,
+        speedY: Math.random() * 0.001 + 0.0005,
+        speedZ: Math.random() * 0.002 + 0.0005,
+        amplitudeX: Math.random() * 10 + 5,
+        amplitudeY: Math.random() * 10 + 5,
+        amplitudeZ: Math.random() * 200 + 100
       });
-      requestAnimationFrame(updateCapsules);
+    }
+
+    // Render all capsules into DOM
+    function renderCapsules() {
+      capsules.forEach(capsule => {
+        const el = document.createElement('div');
+        el.className = 'capsule';
+        el.id = `capsule-${capsule.id}`;
+        const overlay = document.createElement('div');
+        overlay.className = 'capsule-overlay';
+        el.appendChild(overlay);
+        scene.appendChild(el);
+      });
+    }
+
+    // Main animation loop (requestAnimationFrame)
+    function update() {
+      const t = performance.now();
+      capsules.forEach(capsule => {
+        let x = capsule.baseX + Math.sin(t * capsule.speedX + capsule.phaseX) * capsule.amplitudeX;
+        let y = capsule.baseY + Math.sin(t * capsule.speedY + capsule.phaseY) * capsule.amplitudeY;
+        let z = capsule.baseZ + Math.sin(t * capsule.speedZ + capsule.phaseZ) * capsule.amplitudeZ;
+
+        // Wrap z when out of bounds
+        if (z > 600 || z < -600) {
+          capsule.baseZ = Math.random() * 1000 - 500;
+          capsule.phaseX = Math.random() * Math.PI * 2;
+          capsule.phaseY = Math.random() * Math.PI * 2;
+          capsule.phaseZ = Math.random() * Math.PI * 2;
+          capsule.speedX = Math.random() * 0.001 + 0.0005;
+          capsule.speedY = Math.random() * 0.001 + 0.0005;
+          capsule.speedZ = Math.random() * 0.002 + 0.0005;
+          capsule.amplitudeX = Math.random() * 10 + 5;
+          capsule.amplitudeY = Math.random() * 10 + 5;
+          capsule.amplitudeZ = Math.random() * 200 + 100;
+        }
+        if (x > 60 || x < -60) capsule.baseX = Math.random() * 100 - 50;
+        if (y > 60 || y < -60) capsule.baseY = Math.random() * 100 - 50;
+
+        const scale = ((z + 500) / 1000) + 0.2;
+        const el = document.getElementById(`capsule-${capsule.id}`);
+        el.style.transform = `translate3d(${x}vw, ${y}vh, ${z}px) scale(${scale})`;
+      });
+      requestAnimationFrame(update);
     }
 
     // Show/hide modal
@@ -388,18 +421,34 @@
       alert('Thank you! Your submission is received.');
       hideModal();
       joinedCount++;
-      updateCounter();
-      const newCap = {
-        id: Date.now(),
-        x: Math.random()*100 - 50,
-        y: Math.random()*100 - 50,
-        z: -600,
-        dx: (Math.random()*0.5 + 0.1) * (Math.random() < 0.5 ? 1 : -1),
-        dy: (Math.random()*0.5 + 0.1) * (Math.random() < 0.5 ? 1 : -1),
-        dz: (Math.random()*1 + 0.2) * (Math.random() < 0.5 ? 1 : -1)
+      counter.textContent = joinedCount + ' / 1000000 joined';
+
+      const baseX = Math.random() * 100 - 50;
+      const baseY = Math.random() * 100 - 50;
+      const baseZ = Math.random() * 1000 - 500;
+      const newCaps = {
+        id: capsules.length + 1,
+        baseX,
+        baseY,
+        baseZ,
+        phaseX: Math.random() * Math.PI * 2,
+        phaseY: Math.random() * Math.PI * 2,
+        phaseZ: Math.random() * Math.PI * 2,
+        speedX: Math.random() * 0.001 + 0.0005,
+        speedY: Math.random() * 0.001 + 0.0005,
+        speedZ: Math.random() * 0.002 + 0.0005,
+        amplitudeX: Math.random() * 10 + 5,
+        amplitudeY: Math.random() * 10 + 5,
+        amplitudeZ: Math.random() * 200 + 100
       };
-      capsules.push(newCap);
-      createCapsule(newCap);
+      capsules.push(newCaps);
+      const el = document.createElement('div');
+      el.className = 'capsule';
+      el.id = `capsule-${newCaps.id}`;
+      const overlay = document.createElement('div');
+      overlay.className = 'capsule-overlay';
+      el.appendChild(overlay);
+      scene.appendChild(el);
       e.target.reset();
     });
 
@@ -407,10 +456,10 @@
     document.getElementById('joinBtn2').addEventListener('click', showModal);
     document.getElementById('closeModal').addEventListener('click', hideModal);
 
-    // Initialize scene
     window.addEventListener('DOMContentLoaded', () => {
-      initCapsules();
-      updateCapsules();
+      renderCapsules();
+      counter.textContent = joinedCount + ' / 1000000 joined';
+      update();
     });
   </script>
 </body>
