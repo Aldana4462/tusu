@@ -59,24 +59,24 @@ button.buy:hover{background:#19c9a4;}
 <script>
 /* ----- Data Structures ----- */
 const capsuleData=[];
-// generate 100 capsules with randomized base positions across the viewport
+// Base position initialization
 for(let i=1;i<=100;i++){
  capsuleData.push({
   id:i,
-  // base position in viewport units
   baseX:Math.random()*90+5,
   baseY:Math.random()*90+5,
-  // oscillation settings
-  ampX:Math.random()*20+10,
-  ampY:Math.random()*15+10,
+  baseZ:-Math.random()*2000,
+  ampX:Math.random()*10+5,
+  ampY:Math.random()*10+5,
+  ampZ:Math.random()*200+200,
   phaseX:Math.random()*Math.PI*2,
   phaseY:Math.random()*Math.PI*2,
-  speedX:Math.random()*0.001+0.0005,
-  speedY:Math.random()*0.001+0.0005,
-  // depth for 3D scaling
-  z:Math.random()*600-300,
-  phiZ:Math.random()*Math.PI*2,
-  msg:'',url:'',claimed:false
+  phaseZ:Math.random()*Math.PI*2,
+  speedX:Math.random()*0.0005+0.0002,
+  speedY:Math.random()*0.0005+0.0002,
+  speedZ:Math.random()*0.0003+0.0001,
+  msg:'',url:'',claimed:false,
+  el:null
  });
 }
 const particles=[];
@@ -125,31 +125,35 @@ function init(){
 }
 
 /* ----- Animation ----- */
-function animate(t){
- const time=t/1000;
- // particles
+function animate(){
+ const t=performance.now()/2000;
+ // Gentle wind drift animation
+ capsuleData.forEach(c=>{
+  const x=c.baseX+Math.sin(t*c.speedX+c.phaseX)*c.ampX;
+  const y=c.baseY+Math.cos(t*c.speedY+c.phaseY)*c.ampY;
+  let z=c.baseZ+Math.sin(t*c.speedZ+c.phaseZ)*c.ampZ;
+  if(z>0) z=0;
+  // Clamp to viewport edges
+  c.x=Math.min(95,Math.max(5,x));
+  c.y=Math.min(95,Math.max(5,y));
+  const scale=1-(z/-2000);
+  c.el.style.transform=`translate(-50%, -50%) translate(${c.x}vw, ${c.y}vh) translateZ(${z}px) scale(${scale})`;
+ c.el.style.zIndex=Math.round((1-(z/-2000))*1000);
+});
+animateBackgroundParticles(t);
+const glow=0.5+0.5*Math.sin(t*0.5);
+bg.style.background=`radial-gradient(circle at 50% 60%,rgba(255,255,255,${0.05+glow*0.05}),transparent 70%)`;
+requestAnimationFrame(animate);
+}
+
+// background particle motion
+function animateBackgroundParticles(t){
  particles.forEach(p=>{
   p.phase+=p.speed*0.01;
-  const x=p.x+p.amp*Math.sin(time*p.speed+p.phase);
-  const y=p.y+p.amp*Math.cos(time*p.speed+p.phase);
+  const x=p.x+p.amp*Math.sin(t*p.speed+p.phase);
+  const y=p.y+p.amp*Math.cos(t*p.speed+p.phase);
   p.el.style.transform=`translate(${x}px,${y}px)`;
  });
- // capsules drift around their base positions
- capsuleData.forEach(c=>{
-  const range=300;
-  // update depth for scaling effect
-  c.z+=Math.sin(time*0.25+c.phiZ)*0.3;
-  if(c.z>range) c.z=-range; if(c.z<-range) c.z=range;
-  const scale=1+(c.z/300);
-  // compute viewport position using sinusoidal offsets
-  const x=c.baseX+Math.sin(time*c.speedX+c.phaseX)*c.ampX;
-  const y=c.baseY+Math.cos(time*c.speedY+c.phaseY)*c.ampY;
-  c.el.style.transform=`translate(-50%, -50%) translate(${x}vw, ${y}vh) scale(${scale})`;
- });
- // background breathing
- const glow=0.5+0.5*Math.sin(time*0.5);
- bg.style.background=`radial-gradient(circle at 50% 60%,rgba(255,255,255,${0.05+glow*0.05}),transparent 70%)`;
- requestAnimationFrame(animate);
 }
 
 /* ----- Tooltip ----- */
