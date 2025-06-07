@@ -1,0 +1,40 @@
+/* Fullscreen canvas and UI elements */
+html, body {
+    margin: 0;
+    height: 100%;
+    background: #000;
+    overflow: hidden;
+    font-family: Arial, sans-serif;
+    color: #fff;
+}
+#field {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+#search {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    z-index: 10;
+    padding: 4px 6px;
+}
+#buy {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    z-index: 10;
+    padding: 8px 12px;
+}
+#tooltip {
+    position: fixed;
+    background: rgba(0, 0, 0, 0.8);
+    border: 1px solid #fff;
+    padding: 6px 8px;
+    pointer-events: none;
+    z-index: 20;
+    font-size: 14px;
+}
