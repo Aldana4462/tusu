@@ -3,7 +3,7 @@ const CONFIG = {
     totalSquares: window.innerWidth < 600 ? 50 : 100, // change for production
     foregroundCount: 11,
     squareSize: 20,
-    highlightColor: '#FFEA00',
+    highlightColor: '#FFF8A3',
     searchAnimationDuration: 600,
 };
 
@@ -97,7 +97,7 @@ function animate() {
         if (highlighted === sq || hovered === sq) {
             ctx.strokeStyle = CONFIG.highlightColor;
             ctx.lineWidth = 2;
-            ctx.shadowColor = 'rgba(255,234,0,0.8)';
+            ctx.shadowColor = 'rgba(255, 248, 163, 0.9)';
             ctx.shadowBlur = 6;
             ctx.strokeRect(x - size / 2 - 1, y - size / 2 - 1, size + 2, size + 2);
             ctx.shadowBlur = 0;

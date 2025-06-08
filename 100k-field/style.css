@@ -1,9 +1,9 @@
 :root {
     --square-size: 20px;
     --highlight-border-width: 2px;
-    --highlight-color: #FFEA00;
-    --highlight-glow: rgba(255, 234, 0, 0.8);
-    --highlight-glow-spread: 8px;
+    --highlight-color: #FFF8A3; /* lighter gold */
+    --highlight-glow: rgba(255, 248, 163, 0.9); /* stronger glow */
+    --highlight-glow-spread: 10px; /* wider aura */
     --highlight-transition: 0.2s ease;
 }
 
@@ -70,5 +70,5 @@ html, body {
 .square.highlight {
     border: var(--highlight-border-width) solid var(--highlight-color);
     box-shadow: 0 0 calc(var(--highlight-glow-spread) * 2) var(--highlight-glow-spread) var(--highlight-glow);
-    transition: box-shadow var(--highlight-transition), border-color var(--highlight-transition);
+    transition: box-shadow 0.15s ease, border-color 0.15s ease;
 }
