@@ -21,27 +21,14 @@ const CONFIG = {
 const SQUARE_CONTENT = {
     0: {
         status: 'filled',
-        image: 'https://i.imgur.com/tEhrC0o.jpeg',
-        message: 'compra en tusu.com.ar',
+        image: 'https://i.imgur.com/cfEtGlT.png',
+        message: 'compra aqui',
         link: 'https://tusu.com.ar',
     },
 };
 
-// Simple easing function for smooth transitions
-function easeOutCubic(t) {
-    return 1 - Math.pow(1 - t, 3);
-}
-
-// Tween helper to interpolate square position
-function animatePosition(square, target, duration, easing = easeOutCubic) {
-    square.tween = {
-        start: performance.now(),
-        duration,
-        from: { x: square.x, y: square.y, z: square.z },
-        to: target,
-        easing,
-    };
-}
+// No interpolation helpers are needed for now because
+// searched squares simply glow in place rather than moving.
 
 
 // Canvas setup
@@ -77,27 +64,16 @@ class Square {
         }
         // Unique phase so each square moves differently
         this.phase = Math.random() * Math.PI * 2;
-        this.tween = null;
     }
     update(time) {
-        if (this.tween) {
-            const elapsed = performance.now();
-            const t = Math.min((elapsed - this.tween.start) / this.tween.duration, 1);
-            const eased = this.tween.easing(t);
-            this.x = this.tween.from.x + (this.tween.to.x - this.tween.from.x) * eased;
-            this.y = this.tween.from.y + (this.tween.to.y - this.tween.from.y) * eased;
-            this.z = this.tween.from.z + (this.tween.to.z - this.tween.from.z) * eased;
-            if (t === 1) this.tween = null;
-        } else {
-            const angle = time * CONFIG.driftSpeed;
-            this.x = this.baseX + Math.sin(angle + this.phase) * CONFIG.driftAmplitude;
-            this.y = this.baseY + Math.cos(angle * 0.7 + this.phase * 1.3) * CONFIG.driftAmplitude;
+        const angle = time * CONFIG.driftSpeed;
+        this.x = this.baseX + Math.sin(angle + this.phase) * CONFIG.driftAmplitude;
+        this.y = this.baseY + Math.cos(angle * 0.7 + this.phase * 1.3) * CONFIG.driftAmplitude;
 
-            // keep within view
-            const half = CONFIG.squareSize / 2;
-            this.x = Math.max(half, Math.min(canvas.width - half, this.x));
-            this.y = Math.max(half, Math.min(canvas.height - half, this.y));
-        }
+        // keep within view
+        const half = CONFIG.squareSize / 2;
+        this.x = Math.max(half, Math.min(canvas.width - half, this.x));
+        this.y = Math.max(half, Math.min(canvas.height - half, this.y));
     }
 }
 
@@ -136,6 +112,7 @@ function drawBackgroundLights(time) {
 
 let highlighted = null;
 let hovered = null;
+let feedbackTimer = null;
 
 // Animation loop
 function animate() {
@@ -199,11 +176,11 @@ searchInput.addEventListener('keydown', e => {
         const sq = squares.find(s => s.id === id);
         if (sq) {
             highlighted = sq;
-            animatePosition(
-                sq,
-                { x: canvas.width / 2, y: canvas.height / 2, z: 1 },
-                CONFIG.searchAnimationDuration
-            );
+            showFeedback(`ID ${id} highlighted`);
+        }
+        else {
+            highlighted = null;
+            showFeedback('Not found');
         }
     }
 });
@@ -246,6 +223,16 @@ function hideTooltip() {
     tooltip.classList.remove('visible');
     tooltip.hidden = true;
     clearTimeout(tooltipTimer);
+}
+
+// Display brief feedback messages near the search bar
+function showFeedback(msg) {
+    const box = document.getElementById('feedback');
+    if (!box) return;
+    box.textContent = msg;
+    box.classList.add('visible');
+    clearTimeout(feedbackTimer);
+    feedbackTimer = setTimeout(() => box.classList.remove('visible'), 2000);
 }
 
 function handleHover(clientX, clientY) {
