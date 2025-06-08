@@ -1,7 +1,7 @@
 // Configuration
 const TOTAL_SQUARES = window.innerWidth < 600 ? 50 : 100; // change for scaling
-const SQUARE_SIZE = 10;
-const HIGHLIGHT_COLOR = '#FFD700';
+const SQUARE_SIZE = 20;
+const HIGHLIGHT_COLOR = '#FFEA00';
 
 // Canvas setup
 const canvas = document.getElementById('field');
@@ -59,7 +59,7 @@ function animate() {
         if (highlighted === sq || hovered === sq) {
             ctx.strokeStyle = HIGHLIGHT_COLOR;
             ctx.lineWidth = 2;
-            ctx.shadowColor = 'rgba(255,215,0,0.7)';
+            ctx.shadowColor = 'rgba(255,234,0,0.8)';
             ctx.shadowBlur = 6;
             ctx.strokeRect(x - size / 2 - 1, y - size / 2 - 1, size + 2, size + 2);
             ctx.shadowBlur = 0;
