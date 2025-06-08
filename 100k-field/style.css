@@ -57,6 +57,12 @@ html, body {
     text-decoration: underline;
 }
 
+#tooltip img {
+    max-width: 300px;
+    display: block;
+    margin-bottom: 4px;
+}
+
 #tooltip.visible {
     opacity: 1;
 }

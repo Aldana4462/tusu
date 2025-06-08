@@ -15,6 +15,18 @@ const CONFIG = {
     backgroundFlickerSpeed: 0.002,
 };
 
+// Custom data for filled squares.
+// Add entries with id as key to display images and links per square.
+// Example shows square 0 with demo content.
+const SQUARE_CONTENT = {
+    0: {
+        status: 'filled',
+        image: 'https://i.imgur.com/cfEtGlT.png',
+        message: 'compra aqui',
+        link: 'https://tusu.com.ar',
+    },
+};
+
 // Simple easing function for smooth transitions
 function easeOutCubic(t) {
     return 1 - Math.pow(1 - t, 3);
@@ -89,16 +101,15 @@ class Square {
     }
 }
 
-// Generate squares
-// Special square #0 with custom content
-squares.push(new Square(0, {
-    image: 'https://i.imgur.com/cfEtGlT.png',
-    message: 'compra aqui',
-    link: 'https://tusu.com.ar'
-}));
-// Generate remaining squares
+// Generate squares from custom data then fill remaining ids
+Object.keys(SQUARE_CONTENT).forEach(id => {
+    squares.push(new Square(parseInt(id, 10), SQUARE_CONTENT[id]));
+});
+
 for (let i = 1; i <= CONFIG.totalSquares; i++) {
-    squares.push(new Square(i));
+    if (!SQUARE_CONTENT[i]) {
+        squares.push(new Square(i));
+    }
 }
 
 let backgroundLights = null;
@@ -152,9 +163,14 @@ function animate() {
         ctx.shadowColor = CONFIG.ambientGlowColor;
         ctx.shadowBlur = CONFIG.ambientGlowSpread;
         ctx.globalAlpha = alpha;
-        if (sq.id === 0 && sq.imageObj && sq.imageObj.complete && sq.imageObj.naturalWidth) {
-            ctx.drawImage(sq.imageObj, x - CONFIG.squareSize / 2, y - CONFIG.squareSize / 2,
-                CONFIG.squareSize, CONFIG.squareSize);
+        if (sq.imageObj && sq.imageObj.complete && sq.imageObj.naturalWidth) {
+            ctx.drawImage(
+                sq.imageObj,
+                x - CONFIG.squareSize / 2,
+                y - CONFIG.squareSize / 2,
+                CONFIG.squareSize,
+                CONFIG.squareSize
+            );
         } else {
             ctx.fillRect(x - size / 2, y - size / 2, size, size);
         }
@@ -236,11 +252,21 @@ function handleHover(clientX, clientY) {
     });
     hovered = hover || null;
     if (hover) {
-        if (hover.id === 0 && hover.message && hover.link) {
-            showTooltip(`<a href="${hover.link}" target="_blank">${hover.message}</a>`, clientX, clientY);
+        if (hover.status === 'filled') {
+            let html = '';
+            if (hover.imageObj && hover.imageObj.complete && hover.imageObj.naturalWidth) {
+                html += `<img src="${hover.image}" width="300" height="300"><br>`;
+            }
+            if (hover.link) {
+                html += `<a href="${hover.link}" target="_blank">${hover.message || hover.link}</a>`;
+            } else if (hover.message) {
+                html += hover.message;
+            } else {
+                html += `ID: ${hover.id}`;
+            }
+            showTooltip(html, clientX, clientY);
         } else {
-            const label = hover.status === 'filled' ? `ID: ${hover.id}` :
-                `ID: ${hover.id} — ${hover.status === 'reserved' ? 'Reserved' : 'Available'}`;
+            const label = `ID: ${hover.id} — ${hover.status === 'reserved' ? 'Reserved' : 'Available'}`;
             showTooltip(label, clientX, clientY);
         }
     } else {
