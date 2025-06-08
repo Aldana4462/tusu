@@ -1,6 +1,7 @@
 // Configuration
 const TOTAL_SQUARES = window.innerWidth < 600 ? 50 : 100; // change for scaling
 const SQUARE_SIZE = 10;
+const HIGHLIGHT_COLOR = '#FFD700';
 
 // Canvas setup
 const canvas = document.getElementById('field');
@@ -39,6 +40,7 @@ for (let i = 1; i <= TOTAL_SQUARES; i++) {
 }
 
 let highlighted = null;
+let hovered = null;
 
 // Animation loop
 function animate() {
@@ -53,11 +55,14 @@ function animate() {
         const y = sq.y * canvas.height;
         ctx.fillStyle = `rgba(255,255,255,${alpha})`;
         ctx.fillRect(x - size / 2, y - size / 2, size, size);
-        // highlight outline
-        if (highlighted === sq) {
-            ctx.strokeStyle = 'cyan';
+        // highlight outline for hovered or searched square
+        if (highlighted === sq || hovered === sq) {
+            ctx.strokeStyle = HIGHLIGHT_COLOR;
             ctx.lineWidth = 2;
+            ctx.shadowColor = 'rgba(255,215,0,0.7)';
+            ctx.shadowBlur = 6;
             ctx.strokeRect(x - size / 2 - 1, y - size / 2 - 1, size + 2, size + 2);
+            ctx.shadowBlur = 0;
         }
     });
 
@@ -104,6 +109,7 @@ canvas.addEventListener('mousemove', e => {
         const sy = sq.y * canvas.height;
         return Math.abs(x - sx) <= size / 2 && Math.abs(y - sy) <= size / 2;
     });
+    hovered = hover || null;
     if (hover) {
         tooltip.textContent = `ID: ${hover.id} — Available`;
         tooltip.style.left = e.clientX + 10 + 'px';
@@ -113,7 +119,7 @@ canvas.addEventListener('mousemove', e => {
         tooltip.hidden = true;
     }
 });
-canvas.addEventListener('mouseleave', () => { tooltip.hidden = true; });
+canvas.addEventListener('mouseleave', () => { tooltip.hidden = true; hovered = null; });
 
 function resize() {
     canvas.width = window.innerWidth;
