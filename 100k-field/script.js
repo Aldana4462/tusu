@@ -5,6 +5,15 @@ const CONFIG = {
     squareSize: 20,
     highlightColor: '#FFF8A3',
     searchAnimationDuration: 600,
+    ambientGlowColor: 'rgba(255, 248, 163, 0.3)',
+    ambientGlowSpread: 12,
+    breathAmplitude: 0.05,
+    breathFrequency: 0.5,
+    noiseSpeed: 0.001,
+    wrapEdges: true,
+    backgroundLightCount: 50,
+    backgroundLightColor: 'rgba(255,255,255,0.05)',
+    backgroundFlickerSpeed: 0.002,
 };
 
 // Simple easing function for smooth transitions
@@ -23,6 +32,28 @@ function animatePosition(square, target, duration, easing = easeOutCubic) {
     };
 }
 
+// Utility noise helpers for smooth motion
+function fade(t) {
+    return t * t * t * (t * (t * 6 - 15) + 10);
+}
+
+function lerp(a, b, t) {
+    return a + t * (b - a);
+}
+
+function pseudoRandom(seed) {
+    const s = Math.sin(seed) * 43758.5453;
+    return s - Math.floor(s);
+}
+
+function noise(seed, x) {
+    const i = Math.floor(x);
+    const f = x - i;
+    const a = pseudoRandom(i + seed);
+    const b = pseudoRandom(i + 1 + seed);
+    return lerp(a, b, fade(f));
+}
+
 // Canvas setup
 const canvas = document.getElementById('field');
 const ctx = canvas.getContext('2d');
@@ -37,29 +68,26 @@ class Square {
         this.y = Math.random();
         this.z = Math.random();
         this.status = 'empty';
-        // velocity for random walk
-        this.vx = (Math.random() - 0.5) * 0.001;
-        this.vy = (Math.random() - 0.5) * 0.001;
-        this.vz = (Math.random() - 0.5) * 0.001;
         this.tween = null;
     }
-    update() {
+    update(time) {
         if (this.tween) {
-            const now = performance.now();
-            const t = Math.min((now - this.tween.start) / this.tween.duration, 1);
+            const elapsed = performance.now();
+            const t = Math.min((elapsed - this.tween.start) / this.tween.duration, 1);
             const eased = this.tween.easing(t);
             this.x = this.tween.from.x + (this.tween.to.x - this.tween.from.x) * eased;
             this.y = this.tween.from.y + (this.tween.to.y - this.tween.from.y) * eased;
             this.z = this.tween.from.z + (this.tween.to.z - this.tween.from.z) * eased;
             if (t === 1) this.tween = null;
         } else {
-            this.x += this.vx;
-            this.y += this.vy;
-            this.z += this.vz;
-            // wrap around [0,1]
+            const n = time * CONFIG.noiseSpeed;
+            this.x = noise(this.id, n);
+            this.y = noise(this.id + 1000, n);
+            this.z = noise(this.id + 2000, n);
+        }
+        if (CONFIG.wrapEdges) {
             this.x = (this.x + 1) % 1;
             this.y = (this.y + 1) % 1;
-            this.z = (this.z + 1) % 1;
         }
     }
 }
@@ -70,38 +98,68 @@ for (let i = 1; i <= CONFIG.totalSquares; i++) {
     squares.push(new Square(i));
 }
 
+let backgroundLights = null;
+
+function initBackgroundLights() {
+    backgroundLights = Array.from({ length: CONFIG.backgroundLightCount }, () => ({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        baseAlpha: Math.random() * 0.1,
+        flickerOffset: Math.random() * 1000,
+    }));
+}
+
+function drawBackgroundLights(time) {
+    if (!backgroundLights) initBackgroundLights();
+    backgroundLights.forEach(light => {
+        const alpha = light.baseAlpha + 0.05 * Math.sin(time * CONFIG.backgroundFlickerSpeed + light.flickerOffset);
+        ctx.fillStyle = CONFIG.backgroundLightColor.replace(/[\d\.]+\)$/g, `${alpha})`);
+        ctx.beginPath();
+        ctx.arc(light.x, light.y, 1.5, 0, Math.PI * 2);
+        ctx.fill();
+    });
+}
+
 let highlighted = null;
 let hovered = null;
 
 // Animation loop
 function animate() {
+    const now = performance.now();
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    drawBackgroundLights(now);
+
+    const elapsed = now / 1000;
+
     squares.forEach(sq => {
-        sq.update();
-        const scale = 0.5 + sq.z; // depth scaling
-        const size = CONFIG.squareSize * scale;
-        let alpha = 0.3 + sq.z * 0.7;
+        sq.update(now);
+        const scale = 0.5 + sq.z;
+        const breath = 1 + CONFIG.breathAmplitude * Math.sin(2 * Math.PI * CONFIG.breathFrequency * elapsed + sq.id);
+        const size = CONFIG.squareSize * scale * breath;
         const x = sq.x * canvas.width;
         const y = sq.y * canvas.height;
-
+        let alpha = sq.z * 0.5 + 0.5;
         if (sq.status === 'reserved') {
             alpha *= 0.5;
-            ctx.fillStyle = `rgba(180,180,180,${alpha})`;
-        } else {
-            ctx.fillStyle = `rgba(255,255,255,${alpha})`;
         }
 
+        ctx.save();
+        ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+        ctx.shadowColor = CONFIG.ambientGlowColor;
+        ctx.shadowBlur = CONFIG.ambientGlowSpread;
+        ctx.globalAlpha = alpha;
         ctx.fillRect(x - size / 2, y - size / 2, size, size);
-        // highlight outline for hovered or searched square
+        ctx.globalAlpha = 1;
+
         if (highlighted === sq || hovered === sq) {
             ctx.strokeStyle = CONFIG.highlightColor;
             ctx.lineWidth = 2;
-            ctx.shadowColor = 'rgba(255, 248, 163, 0.9)';
-            ctx.shadowBlur = 6;
+            ctx.shadowColor = CONFIG.highlightColor;
+            ctx.shadowBlur = CONFIG.ambientGlowSpread * 1.5;
             ctx.strokeRect(x - size / 2 - 1, y - size / 2 - 1, size + 2, size + 2);
-            ctx.shadowBlur = 0;
         }
+        ctx.restore();
     });
 
     requestAnimationFrame(animate);
@@ -156,7 +214,8 @@ function handleHover(clientX, clientY) {
     const y = clientY - rect.top;
     const hover = squares.find(sq => {
         const scale = 0.5 + sq.z;
-        const size = CONFIG.squareSize * scale;
+        const breath = 1 + CONFIG.breathAmplitude * Math.sin(2 * Math.PI * CONFIG.breathFrequency * performance.now() / 1000 + sq.id);
+        const size = CONFIG.squareSize * scale * breath;
         const sx = sq.x * canvas.width;
         const sy = sq.y * canvas.height;
         return Math.abs(x - sx) <= size / 2 && Math.abs(y - sy) <= size / 2;

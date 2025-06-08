@@ -5,6 +5,8 @@
     --highlight-glow: rgba(255, 248, 163, 0.9); /* stronger glow */
     --highlight-glow-spread: 10px; /* wider aura */
     --highlight-transition: 0.2s ease;
+    --ambient-glow-color: rgba(255, 248, 163, 0.3);
+    --ambient-glow-spread: 12px;
 }
 
 /* Fullscreen canvas and UI elements */
@@ -60,6 +62,7 @@ html, body {
     width: var(--square-size);
     height: var(--square-size);
     will-change: transform, opacity;
+    box-shadow: 0 0 var(--ambient-glow-spread) var(--ambient-glow-color);
 }
 
 .square.reserved {
