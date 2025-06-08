@@ -255,15 +255,18 @@ tooltip.addEventListener('mouseleave', () => {
 
 function showTooltip(html, x, y) {
     tooltip.innerHTML = html;
+    tooltip.setAttribute('tabindex', '0');
     tooltip.style.left = x + 10 + 'px';
     tooltip.style.top = y + 10 + 'px';
     tooltip.hidden = false;
     tooltip.classList.add('visible');
+    tooltip.focus();
 }
 
 function hideTooltip() {
     tooltip.classList.remove('visible');
     tooltip.hidden = true;
+    tooltip.removeAttribute('tabindex');
 }
 
 // Display brief feedback messages near the search bar
