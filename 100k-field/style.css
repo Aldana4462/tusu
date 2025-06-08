@@ -1,0 +1,106 @@
+:root {
+    --square-size: 20px;
+    --highlight-border-width: 2px;
+    --highlight-color: #FFD700; /* warm gold */
+    --highlight-glow: rgba(255,215,0,0.7);
+    --highlight-glow-spread: 6px;
+    --highlight-transition: 0.3s ease;
+    --ambient-glow-color: rgba(255, 248, 163, 0.3);
+    --ambient-glow-spread: 12px;
+}
+
+/* Fullscreen canvas and UI elements */
+html, body {
+    margin: 0;
+    height: 100%;
+    background: #000;
+    overflow: hidden;
+    font-family: Arial, sans-serif;
+    color: #fff;
+}
+#field {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+#search {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    z-index: 10;
+    padding: 4px 6px;
+}
+#buy {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    z-index: 10;
+    padding: 8px 12px;
+}
+#feedback {
+    position: fixed;
+    top: 40px;
+    right: 10px;
+    color: var(--highlight-color);
+    font-size: 14px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 10;
+}
+#feedback.visible {
+    opacity: 1;
+}
+#tooltip {
+    position: fixed;
+    background: rgba(0, 0, 0, 0.8);
+    border: 1px solid var(--highlight-color);
+    color: var(--highlight-color);
+    padding: 6px 8px;
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+    pointer-events: auto;
+    user-select: text;
+    z-index: 20;
+    font-size: 14px;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+
+#tooltip a {
+    color: var(--highlight-color);
+    text-decoration: underline;
+}
+
+#tooltip img {
+    max-width: 300px;
+    display: block;
+    margin-bottom: 4px;
+}
+
+#tooltip.visible {
+    opacity: 1;
+}
+
+/* Highlighted square style (future DOM use) */
+
+.square {
+    width: var(--square-size);
+    height: var(--square-size);
+    will-change: transform, opacity;
+    box-shadow: 0 0 var(--ambient-glow-spread) var(--ambient-glow-color);
+}
+
+.square.reserved {
+    opacity: 0.5;
+    filter: grayscale(50%);
+}
+
+.square.highlight {
+    border: 2px solid #FFD700;
+    box-shadow: 0 0 12px 6px rgba(255,215,0,0.7);
+    transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
