@@ -21,7 +21,7 @@ const CONFIG = {
 const SQUARE_CONTENT = {
     0: {
         status: 'filled',
-        image: 'https://i.imgur.com/cfEtGlT.png',
+        image: 'https://i.imgur.com/tEhrC0o.jpg',
         message: 'compra aqui',
         link: 'https://tusu.com.ar',
     },
@@ -137,6 +137,63 @@ let highlighted = null;
 let hovered = null;
 let feedbackTimer = null;
 
+function renderSquare(sq, now, {skipHighlight = false} = {}) {
+    const scale = 0.5 + sq.z;
+    const breath = 1 + CONFIG.breathAmplitude * Math.sin(2 * Math.PI * (now / 1000) / CONFIG.breathPeriod + sq.id);
+    let size = CONFIG.squareSize * scale * breath;
+    if (hovered === sq) {
+        size = CONFIG.squareSize * 2;
+    }
+    const x = sq.x;
+    const y = sq.y;
+    let alpha = sq.z * 0.5 + 0.5;
+    if (sq.status === 'reserved') {
+        alpha *= 0.5;
+    }
+
+    ctx.save();
+    ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+    ctx.shadowColor = CONFIG.ambientGlowColor;
+    ctx.shadowBlur = CONFIG.ambientGlowSpread;
+    ctx.globalAlpha = alpha;
+    if (sq.imageObj && sq.imageLoaded && !sq.imageFailed) {
+        const crop = sq.crop;
+        if (crop) {
+            ctx.drawImage(
+                sq.imageObj,
+                crop.sx,
+                crop.sy,
+                crop.sw,
+                crop.sh,
+                x - size / 2,
+                y - size / 2,
+                size,
+                size
+            );
+        } else {
+            ctx.drawImage(
+                sq.imageObj,
+                x - size / 2,
+                y - size / 2,
+                size,
+                size
+            );
+        }
+    } else {
+        ctx.fillRect(x - size / 2, y - size / 2, size, size);
+    }
+    ctx.globalAlpha = 1;
+
+    if (!skipHighlight && (highlighted === sq || hovered === sq)) {
+        ctx.strokeStyle = CONFIG.highlightColor;
+        ctx.lineWidth = 2;
+        ctx.shadowColor = CONFIG.highlightColor;
+        ctx.shadowBlur = CONFIG.ambientGlowSpread * 1.5;
+        ctx.strokeRect(x - size / 2 - 1, y - size / 2 - 1, size + 2, size + 2);
+    }
+    ctx.restore();
+}
+
 // Animation loop
 function animate() {
     const now = performance.now();
@@ -144,63 +201,16 @@ function animate() {
 
     drawBackgroundLights(now);
 
-    const elapsed = now / 1000;
-
     squares.forEach(sq => {
         sq.update(now);
-        const scale = 0.5 + sq.z;
-        const breath = 1 + CONFIG.breathAmplitude * Math.sin(2 * Math.PI * elapsed / CONFIG.breathPeriod + sq.id);
-        const size = CONFIG.squareSize * scale * breath;
-        const x = sq.x;
-        const y = sq.y;
-        let alpha = sq.z * 0.5 + 0.5;
-        if (sq.status === 'reserved') {
-            alpha *= 0.5;
+        if (sq !== hovered) {
+            renderSquare(sq, now);
         }
-
-        ctx.save();
-        ctx.fillStyle = `rgba(255,255,255,${alpha})`;
-        ctx.shadowColor = CONFIG.ambientGlowColor;
-        ctx.shadowBlur = CONFIG.ambientGlowSpread;
-        ctx.globalAlpha = alpha;
-        if (sq.imageObj && sq.imageLoaded && !sq.imageFailed) {
-            // Draw preloaded image cropped to fill the square (object-fit: cover)
-            const crop = sq.crop;
-            if (crop) {
-                ctx.drawImage(
-                    sq.imageObj,
-                    crop.sx,
-                    crop.sy,
-                    crop.sw,
-                    crop.sh,
-                    x - CONFIG.squareSize / 2,
-                    y - CONFIG.squareSize / 2,
-                    CONFIG.squareSize,
-                    CONFIG.squareSize
-                );
-            } else {
-                ctx.drawImage(
-                    sq.imageObj,
-                    x - CONFIG.squareSize / 2,
-                    y - CONFIG.squareSize / 2,
-                    CONFIG.squareSize,
-                    CONFIG.squareSize
-                );
-            }
-        } else {
-            ctx.fillRect(x - size / 2, y - size / 2, size, size);
-        }
-        ctx.globalAlpha = 1;
-
-        if (highlighted === sq || hovered === sq) {
-            ctx.strokeStyle = CONFIG.highlightColor;
-            ctx.lineWidth = 2;
-            ctx.shadowColor = CONFIG.highlightColor;
-            ctx.shadowBlur = CONFIG.ambientGlowSpread * 1.5;
-            ctx.strokeRect(x - size / 2 - 1, y - size / 2 - 1, size + 2, size + 2);
-        }
-        ctx.restore();
     });
+    if (hovered) {
+        hovered.update(now);
+        renderSquare(hovered, now);
+    }
 
     requestAnimationFrame(animate);
 }
@@ -237,11 +247,6 @@ buyBtn.addEventListener('click', () => {
 
 // Tooltip logic
 const tooltip = document.getElementById('tooltip');
-let tooltipTimer = null;
-
-tooltip.addEventListener('mouseenter', () => {
-    clearTimeout(tooltipTimer);
-});
 
 tooltip.addEventListener('mouseleave', () => {
     hideTooltip();
@@ -254,14 +259,11 @@ function showTooltip(html, x, y) {
     tooltip.style.top = y + 10 + 'px';
     tooltip.hidden = false;
     tooltip.classList.add('visible');
-    clearTimeout(tooltipTimer);
-    tooltipTimer = setTimeout(() => tooltip.classList.remove('visible'), 3000);
 }
 
 function hideTooltip() {
     tooltip.classList.remove('visible');
     tooltip.hidden = true;
-    clearTimeout(tooltipTimer);
 }
 
 // Display brief feedback messages near the search bar
@@ -281,7 +283,10 @@ function handleHover(clientX, clientY) {
     const hover = squares.find(sq => {
         const scale = 0.5 + sq.z;
         const breath = 1 + CONFIG.breathAmplitude * Math.sin(2 * Math.PI * (performance.now() / 1000) / CONFIG.breathPeriod + sq.id);
-        const size = CONFIG.squareSize * scale * breath;
+        let size = CONFIG.squareSize * scale * breath;
+        if (hovered === sq) {
+            size = CONFIG.squareSize * 2;
+        }
         const sx = sq.x;
         const sy = sq.y;
         return Math.abs(x - sx) <= size / 2 && Math.abs(y - sy) <= size / 2;

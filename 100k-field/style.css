@@ -60,6 +60,8 @@ html, body {
     border: 1px solid var(--highlight-color);
     color: var(--highlight-color);
     padding: 6px 8px;
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
     pointer-events: auto;
     z-index: 20;
     font-size: 14px;
