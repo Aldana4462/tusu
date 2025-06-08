@@ -1,3 +1,12 @@
+:root {
+    --square-size: 20px;
+    --highlight-border-width: 2px;
+    --highlight-color: #FFEA00;
+    --highlight-glow: rgba(255, 234, 0, 0.8);
+    --highlight-glow-spread: 8px;
+    --highlight-transition: 0.2s ease;
+}
+
 /* Fullscreen canvas and UI elements */
 html, body {
     margin: 0;
@@ -37,16 +46,29 @@ html, body {
     pointer-events: none;
     z-index: 20;
     font-size: 14px;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+
+#tooltip.visible {
+    opacity: 1;
 }
 
 /* Highlighted square style (future DOM use) */
+
 .square {
-    width: 20px;
-    height: 20px;
+    width: var(--square-size);
+    height: var(--square-size);
+    will-change: transform, opacity;
+}
+
+.square.reserved {
+    opacity: 0.5;
+    filter: grayscale(50%);
 }
 
 .square.highlight {
-    border: 2px solid #FFEA00;
-    box-shadow: 0 0 16px 8px rgba(255, 234, 0, 0.8);
-    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+    border: var(--highlight-border-width) solid var(--highlight-color);
+    box-shadow: 0 0 calc(var(--highlight-glow-spread) * 2) var(--highlight-glow-spread) var(--highlight-glow);
+    transition: box-shadow var(--highlight-transition), border-color var(--highlight-transition);
 }
