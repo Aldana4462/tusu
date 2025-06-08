@@ -1,16 +1,15 @@
 // Central configuration for easy scaling/tweaking
 const CONFIG = {
     totalSquares: window.innerWidth < 600 ? 50 : 100, // change for production
-    foregroundCount: 11,
     squareSize: 20,
+    driftAmplitude: 30,      // px movement from base position
+    driftSpeed: 0.00006,     // radians per ms for peaceful motion
+    breathAmplitude: 0.05,   // ±5% scaling
+    breathPeriod: 7,         // seconds per full cycle
     highlightColor: '#FFD700',
     searchAnimationDuration: 600,
     ambientGlowColor: 'rgba(255, 248, 163, 0.3)',
     ambientGlowSpread: 12,
-    breathAmplitude: 0.05,
-    breathFrequency: 0.5,
-    noiseSpeed: 0.001,
-    wrapEdges: true,
     backgroundLightCount: 50,
     backgroundLightColor: 'rgba(255,255,255,0.05)',
     backgroundFlickerSpeed: 0.002,
@@ -32,31 +31,16 @@ function animatePosition(square, target, duration, easing = easeOutCubic) {
     };
 }
 
-// Utility noise helpers for smooth motion
-function fade(t) {
-    return t * t * t * (t * (t * 6 - 15) + 10);
-}
-
-function lerp(a, b, t) {
-    return a + t * (b - a);
-}
-
-function pseudoRandom(seed) {
-    const s = Math.sin(seed) * 43758.5453;
-    return s - Math.floor(s);
-}
-
-function noise(seed, x) {
-    const i = Math.floor(x);
-    const f = x - i;
-    const a = pseudoRandom(i + seed);
-    const b = pseudoRandom(i + 1 + seed);
-    return lerp(a, b, fade(f));
-}
 
 // Canvas setup
 const canvas = document.getElementById('field');
 const ctx = canvas.getContext('2d');
+
+// Prepare square collection before first resize
+const squares = [];
+
+let prevWidth = window.innerWidth;
+let prevHeight = window.innerHeight;
 resize();
 window.addEventListener('resize', resize);
 
@@ -64,8 +48,11 @@ window.addEventListener('resize', resize);
 class Square {
     constructor(id, options = {}) {
         this.id = id;
-        this.x = Math.random();
-        this.y = Math.random();
+        // Base position in pixels
+        this.baseX = Math.random() * canvas.width;
+        this.baseY = Math.random() * canvas.height;
+        this.x = this.baseX;
+        this.y = this.baseY;
         this.z = Math.random();
         this.status = options.status || 'empty';
         this.message = options.message || '';
@@ -76,6 +63,8 @@ class Square {
             this.imageObj = new Image();
             this.imageObj.src = this.image;
         }
+        // Unique phase so each square moves differently
+        this.phase = Math.random() * Math.PI * 2;
         this.tween = null;
     }
     update(time) {
@@ -88,20 +77,19 @@ class Square {
             this.z = this.tween.from.z + (this.tween.to.z - this.tween.from.z) * eased;
             if (t === 1) this.tween = null;
         } else {
-            const n = time * CONFIG.noiseSpeed;
-            this.x = noise(this.id, n);
-            this.y = noise(this.id + 1000, n);
-            this.z = noise(this.id + 2000, n);
-        }
-        if (CONFIG.wrapEdges) {
-            this.x = (this.x + 1) % 1;
-            this.y = (this.y + 1) % 1;
+            const angle = time * CONFIG.driftSpeed;
+            this.x = this.baseX + Math.sin(angle + this.phase) * CONFIG.driftAmplitude;
+            this.y = this.baseY + Math.cos(angle * 0.7 + this.phase * 1.3) * CONFIG.driftAmplitude;
+
+            // keep within view
+            const half = CONFIG.squareSize / 2;
+            this.x = Math.max(half, Math.min(canvas.width - half, this.x));
+            this.y = Math.max(half, Math.min(canvas.height - half, this.y));
         }
     }
 }
 
 // Generate squares
-const squares = [];
 // Special square #0 with custom content
 squares.push(new Square(0, {
     image: 'https://i.imgur.com/cfEtGlT.png',
@@ -150,10 +138,10 @@ function animate() {
     squares.forEach(sq => {
         sq.update(now);
         const scale = 0.5 + sq.z;
-        const breath = 1 + CONFIG.breathAmplitude * Math.sin(2 * Math.PI * CONFIG.breathFrequency * elapsed + sq.id);
+        const breath = 1 + CONFIG.breathAmplitude * Math.sin(2 * Math.PI * elapsed / CONFIG.breathPeriod + sq.id);
         const size = CONFIG.squareSize * scale * breath;
-        const x = sq.x * canvas.width;
-        const y = sq.y * canvas.height;
+        const x = sq.x;
+        const y = sq.y;
         let alpha = sq.z * 0.5 + 0.5;
         if (sq.status === 'reserved') {
             alpha *= 0.5;
@@ -195,7 +183,11 @@ searchInput.addEventListener('keydown', e => {
         const sq = squares.find(s => s.id === id);
         if (sq) {
             highlighted = sq;
-            animatePosition(sq, { x: 0.5, y: 0.5, z: 1 }, CONFIG.searchAnimationDuration);
+            animatePosition(
+                sq,
+                { x: canvas.width / 2, y: canvas.height / 2, z: 1 },
+                CONFIG.searchAnimationDuration
+            );
         }
     }
 });
@@ -236,10 +228,10 @@ function handleHover(clientX, clientY) {
     const y = clientY - rect.top;
     const hover = squares.find(sq => {
         const scale = 0.5 + sq.z;
-        const breath = 1 + CONFIG.breathAmplitude * Math.sin(2 * Math.PI * CONFIG.breathFrequency * performance.now() / 1000 + sq.id);
+        const breath = 1 + CONFIG.breathAmplitude * Math.sin(2 * Math.PI * (performance.now() / 1000) / CONFIG.breathPeriod + sq.id);
         const size = CONFIG.squareSize * scale * breath;
-        const sx = sq.x * canvas.width;
-        const sy = sq.y * canvas.height;
+        const sx = sq.x;
+        const sy = sq.y;
         return Math.abs(x - sx) <= size / 2 && Math.abs(y - sy) <= size / 2;
     });
     hovered = hover || null;
@@ -265,6 +257,20 @@ canvas.addEventListener('touchstart', e => {
 canvas.addEventListener('touchend', () => { hideTooltip(); hovered = null; });
 
 function resize() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    const newWidth = window.innerWidth;
+    const newHeight = window.innerHeight;
+    const ratioX = newWidth / prevWidth;
+    const ratioY = newHeight / prevHeight;
+
+    squares.forEach(sq => {
+        sq.baseX *= ratioX;
+        sq.baseY *= ratioY;
+        sq.x *= ratioX;
+        sq.y *= ratioY;
+    });
+
+    canvas.width = newWidth;
+    canvas.height = newHeight;
+    prevWidth = newWidth;
+    prevHeight = newHeight;
 }
