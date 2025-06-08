@@ -3,7 +3,7 @@ const CONFIG = {
     totalSquares: window.innerWidth < 600 ? 50 : 100, // change for production
     foregroundCount: 11,
     squareSize: 20,
-    highlightColor: '#FFF8A3',
+    highlightColor: '#FFD700',
     searchAnimationDuration: 600,
     ambientGlowColor: 'rgba(255, 248, 163, 0.3)',
     ambientGlowSpread: 12,

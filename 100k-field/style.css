@@ -1,10 +1,10 @@
 :root {
     --square-size: 20px;
     --highlight-border-width: 2px;
-    --highlight-color: #FFF8A3; /* lighter gold */
-    --highlight-glow: rgba(255, 248, 163, 0.9); /* stronger glow */
-    --highlight-glow-spread: 10px; /* wider aura */
-    --highlight-transition: 0.2s ease;
+    --highlight-color: #FFD700; /* warm gold */
+    --highlight-glow: rgba(255,215,0,0.7);
+    --highlight-glow-spread: 6px;
+    --highlight-transition: 0.3s ease;
     --ambient-glow-color: rgba(255, 248, 163, 0.3);
     --ambient-glow-spread: 12px;
 }
@@ -71,7 +71,7 @@ html, body {
 }
 
 .square.highlight {
-    border: var(--highlight-border-width) solid var(--highlight-color);
-    box-shadow: 0 0 calc(var(--highlight-glow-spread) * 2) var(--highlight-glow-spread) var(--highlight-glow);
-    transition: box-shadow 0.15s ease, border-color 0.15s ease;
+    border: 2px solid #FFD700;
+    box-shadow: 0 0 12px 6px rgba(255,215,0,0.7);
+    transition: box-shadow 0.3s ease, border-color 0.3s ease;
 }
