@@ -58,8 +58,23 @@ class Square {
         this.link = options.link || '';
         this.image = options.image || null;
         this.imageObj = null;
+        this.crop = null;
         if (this.image) {
             this.imageObj = new Image();
+            // Preload image and calculate crop region for object-fit: cover
+            this.imageObj.onload = () => {
+                const w = this.imageObj.naturalWidth;
+                const h = this.imageObj.naturalHeight;
+                if (w && h) {
+                    if (w > h) {
+                        const offset = (w - h) / 2;
+                        this.crop = { sx: offset, sy: 0, sw: h, sh: h };
+                    } else {
+                        const offset = (h - w) / 2;
+                        this.crop = { sx: 0, sy: offset, sw: w, sh: w };
+                    }
+                }
+            };
             this.imageObj.src = this.image;
         }
         // Unique phase so each square moves differently
@@ -141,13 +156,29 @@ function animate() {
         ctx.shadowBlur = CONFIG.ambientGlowSpread;
         ctx.globalAlpha = alpha;
         if (sq.imageObj && sq.imageObj.complete && sq.imageObj.naturalWidth) {
-            ctx.drawImage(
-                sq.imageObj,
-                x - CONFIG.squareSize / 2,
-                y - CONFIG.squareSize / 2,
-                CONFIG.squareSize,
-                CONFIG.squareSize
-            );
+            // Draw preloaded image cropped to fill the square (object-fit: cover)
+            const crop = sq.crop;
+            if (crop) {
+                ctx.drawImage(
+                    sq.imageObj,
+                    crop.sx,
+                    crop.sy,
+                    crop.sw,
+                    crop.sh,
+                    x - CONFIG.squareSize / 2,
+                    y - CONFIG.squareSize / 2,
+                    CONFIG.squareSize,
+                    CONFIG.squareSize
+                );
+            } else {
+                ctx.drawImage(
+                    sq.imageObj,
+                    x - CONFIG.squareSize / 2,
+                    y - CONFIG.squareSize / 2,
+                    CONFIG.squareSize,
+                    CONFIG.squareSize
+                );
+            }
         } else {
             ctx.fillRect(x - size / 2, y - size / 2, size, size);
         }
