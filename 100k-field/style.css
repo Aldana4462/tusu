@@ -52,6 +52,11 @@ html, body {
     transition: opacity 0.15s ease;
 }
 
+#tooltip a {
+    color: #FFD700;
+    text-decoration: underline;
+}
+
 #tooltip.visible {
     opacity: 1;
 }

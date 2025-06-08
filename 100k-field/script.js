@@ -62,12 +62,20 @@ window.addEventListener('resize', resize);
 
 // Square object template
 class Square {
-    constructor(id) {
+    constructor(id, options = {}) {
         this.id = id;
         this.x = Math.random();
         this.y = Math.random();
         this.z = Math.random();
-        this.status = 'empty';
+        this.status = options.status || 'empty';
+        this.message = options.message || '';
+        this.link = options.link || '';
+        this.image = options.image || null;
+        this.imageObj = null;
+        if (this.image) {
+            this.imageObj = new Image();
+            this.imageObj.src = this.image;
+        }
         this.tween = null;
     }
     update(time) {
@@ -94,6 +102,13 @@ class Square {
 
 // Generate squares
 const squares = [];
+// Special square #0 with custom content
+squares.push(new Square(0, {
+    image: 'https://i.imgur.com/cfEtGlT.png',
+    message: 'compra aqui',
+    link: 'https://tusu.com.ar'
+}));
+// Generate remaining squares
 for (let i = 1; i <= CONFIG.totalSquares; i++) {
     squares.push(new Square(i));
 }
@@ -149,7 +164,12 @@ function animate() {
         ctx.shadowColor = CONFIG.ambientGlowColor;
         ctx.shadowBlur = CONFIG.ambientGlowSpread;
         ctx.globalAlpha = alpha;
-        ctx.fillRect(x - size / 2, y - size / 2, size, size);
+        if (sq.id === 0 && sq.imageObj && sq.imageObj.complete && sq.imageObj.naturalWidth) {
+            ctx.drawImage(sq.imageObj, x - CONFIG.squareSize / 2, y - CONFIG.squareSize / 2,
+                CONFIG.squareSize, CONFIG.squareSize);
+        } else {
+            ctx.fillRect(x - size / 2, y - size / 2, size, size);
+        }
         ctx.globalAlpha = 1;
 
         if (highlighted === sq || hovered === sq) {
@@ -195,10 +215,11 @@ buyBtn.addEventListener('click', () => {
 const tooltip = document.getElementById('tooltip');
 let tooltipTimer = null;
 
-function showTooltip(text, x, y) {
-    tooltip.textContent = text;
+function showTooltip(html, x, y) {
+    tooltip.innerHTML = html;
     tooltip.style.left = x + 10 + 'px';
     tooltip.style.top = y + 10 + 'px';
+    tooltip.hidden = false;
     tooltip.classList.add('visible');
     clearTimeout(tooltipTimer);
     tooltipTimer = setTimeout(() => tooltip.classList.remove('visible'), 3000);
@@ -206,6 +227,7 @@ function showTooltip(text, x, y) {
 
 function hideTooltip() {
     tooltip.classList.remove('visible');
+    tooltip.hidden = true;
 }
 
 function handleHover(clientX, clientY) {
@@ -222,9 +244,13 @@ function handleHover(clientX, clientY) {
     });
     hovered = hover || null;
     if (hover) {
-        const label = hover.status === 'filled' ? `ID: ${hover.id}` :
-            `ID: ${hover.id} — ${hover.status === 'reserved' ? 'Reserved' : 'Available'}`;
-        showTooltip(label, clientX, clientY);
+        if (hover.id === 0 && hover.message && hover.link) {
+            showTooltip(`<a href="${hover.link}" target="_blank">${hover.message}</a>`, clientX, clientY);
+        } else {
+            const label = hover.status === 'filled' ? `ID: ${hover.id}` :
+                `ID: ${hover.id} — ${hover.status === 'reserved' ? 'Reserved' : 'Available'}`;
+            showTooltip(label, clientX, clientY);
+        }
     } else {
         hideTooltip();
     }
