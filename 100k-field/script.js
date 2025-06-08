@@ -21,7 +21,7 @@ const CONFIG = {
 const SQUARE_CONTENT = {
     0: {
         status: 'filled',
-        image: 'https://imgur.com/a/1deHkhf',
+        image: 'https://i.imgur.com/tEhrC0o.jpeg',
         message: 'compra en tusu.com.ar',
         link: 'https://tusu.com.ar',
     },
@@ -223,6 +223,15 @@ buyBtn.addEventListener('click', () => {
 const tooltip = document.getElementById('tooltip');
 let tooltipTimer = null;
 
+tooltip.addEventListener('mouseenter', () => {
+    clearTimeout(tooltipTimer);
+});
+
+tooltip.addEventListener('mouseleave', () => {
+    hideTooltip();
+    hovered = null;
+});
+
 function showTooltip(html, x, y) {
     tooltip.innerHTML = html;
     tooltip.style.left = x + 10 + 'px';
@@ -236,6 +245,7 @@ function showTooltip(html, x, y) {
 function hideTooltip() {
     tooltip.classList.remove('visible');
     tooltip.hidden = true;
+    clearTimeout(tooltipTimer);
 }
 
 function handleHover(clientX, clientY) {
@@ -275,7 +285,13 @@ function handleHover(clientX, clientY) {
 }
 
 canvas.addEventListener('mousemove', e => handleHover(e.clientX, e.clientY));
-canvas.addEventListener('mouseleave', () => { hideTooltip(); hovered = null; });
+canvas.addEventListener('mouseleave', (e) => {
+    if (e.relatedTarget === tooltip || tooltip.contains(e.relatedTarget)) {
+        return;
+    }
+    hideTooltip();
+    hovered = null;
+});
 canvas.addEventListener('touchstart', e => {
     const t = e.touches[0];
     if (t) handleHover(t.clientX, t.clientY);

@@ -45,7 +45,7 @@ html, body {
     background: rgba(0, 0, 0, 0.8);
     border: 1px solid #fff;
     padding: 6px 8px;
-    pointer-events: none;
+    pointer-events: auto;
     z-index: 20;
     font-size: 14px;
     opacity: 0;
