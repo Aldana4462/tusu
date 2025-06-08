@@ -58,9 +58,12 @@ class Square {
         this.link = options.link || '';
         this.image = options.image || null;
         this.imageObj = null;
+        this.imageLoaded = false;
+        this.imageFailed = false;
         this.crop = null;
         if (this.image) {
             this.imageObj = new Image();
+            this.imageObj.crossOrigin = 'anonymous';
             // Preload image and calculate crop region for object-fit: cover
             this.imageObj.onload = () => {
                 const w = this.imageObj.naturalWidth;
@@ -73,7 +76,12 @@ class Square {
                         const offset = (h - w) / 2;
                         this.crop = { sx: 0, sy: offset, sw: w, sh: w };
                     }
+                    this.imageLoaded = true;
                 }
+            };
+            this.imageObj.onerror = () => {
+                console.error('Image failed to load for square', this.id, this.image);
+                this.imageFailed = true;
             };
             this.imageObj.src = this.image;
         }
@@ -155,7 +163,7 @@ function animate() {
         ctx.shadowColor = CONFIG.ambientGlowColor;
         ctx.shadowBlur = CONFIG.ambientGlowSpread;
         ctx.globalAlpha = alpha;
-        if (sq.imageObj && sq.imageObj.complete && sq.imageObj.naturalWidth) {
+        if (sq.imageObj && sq.imageLoaded && !sq.imageFailed) {
             // Draw preloaded image cropped to fill the square (object-fit: cover)
             const crop = sq.crop;
             if (crop) {
@@ -282,7 +290,7 @@ function handleHover(clientX, clientY) {
     if (hover) {
         if (hover.status === 'filled') {
             let html = '';
-            if (hover.imageObj && hover.imageObj.complete && hover.imageObj.naturalWidth) {
+            if (hover.imageObj && hover.imageLoaded && !hover.imageFailed) {
                 html += `<img src="${hover.image}" width="300" height="300"><br>`;
             }
             if (hover.link) {
