@@ -21,8 +21,8 @@ const CONFIG = {
 const SQUARE_CONTENT = {
     0: {
         status: 'filled',
-        image: 'https://i.imgur.com/cfEtGlT.png',
-        message: 'compra aqui',
+        image: 'https://imgur.com/a/1deHkhf',
+        message: 'compra en tusu.com.ar',
         link: 'https://tusu.com.ar',
     },
 };
